@@ -1,38 +1,255 @@
-.App {
+/*
+
+Created by Matej Kovac
+http://moodydev.io
+
+*/
+
+/* FONT IMPORTS */
+.bg {
+  font-weight: 700;
+  line-height: 1;
+  color: var(--main-color);
+  opacity: 0.10;
+  font-size: 4em;
+  position: absolute;
+  top: -0.02em;
+  right: 0.1em;
+  transition: 0.25s ease-out;
+  letter-spacing: -0.07em;
+}
+.fc .fc-day:hover .bg{
+  opacity: 0.65;
+  transition: 0.4s ease-in;
+}
+
+.fc-daygrid-event {
+  white-space: break-spaces!important;
+  border-radius: 0px!important;
+  font-size: .85em!important;
+}
+
+.fc .fc-col-header-cell-cushion {
+  font-weight: normal;
+
+  text-transform: uppercase;
+  font-size: .7em;
+}
+.fc .fc-daygrid-day-number {
+  font-weight: bold;
+  font-size: .85em;
+}
+.fc .fc-toolbar-title {
+  font-size: 1.25em!important;
+  letter-spacing: .15rem;
+}
+.fc .fc-toolbar-title:first-letter {
+  text-transform: uppercase;
+}
+.fc .fc-button-group > .fc-today-button {
+  text-transform: uppercase;
+  font-size: .88em;
+}
+
+.icon {
+  font-style: normal;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "liga";
+}
+
+/* VARIABLES */
+
+:root {
+  --main-color: #1a8fff;
+  --text-color: #777;
+  --text-color-dark: #3f3f3f;
+  --text-color-light: #ccc;
+  --border-color: #eee;
+  --bg-color: #f9f9f9;
+  --neutral-color: #fff;
+}
+
+/* GENERAL */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  font-size: 1em;
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--text-color);
+  background: var(--bg-color);
+}
+
+header {
+  display: block;
+  width: 100%;
+  padding: 1em 0;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--neutral-color);
+}
+
+header #logo {
+  font-size: 175%;
+  text-align: center;
+  color: var(--main-color);
+  line-height: 1;
+}
+
+header #logo .icon {
+  padding-right: 0.25em;
+}
+header #logo div {
+  color: var(--text-color);
+  font-size: 85%;
+}
+main {
+  margin: 0 auto;
+  margin-top: 1em;
+  max-width: 95%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  border: 1px solid #d7d0d0;
+}
+.LeftPane {
+  flex: 0 0 250px;
+  background: #f8f6f6;
+
+}
+
+/* GRID */
+
+.row {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.row-middle {
+  align-items: center;
+}
+
+.col {
+  flex-grow: 1;
+  flex-basis: 0;
+  max-width: 100%;
+}
+
+.col-start {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.col-center {
+  justify-content: center;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.col-end {
+  justify-content: flex-end;
+  text-align: right;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Calendar */
+
+.calendar {
+  display: block;
+  position: relative;
+  width: 100%;
+  background: var(--neutral-color);
+  border: 1px solid var(--border-color);
+  padding: 15px;
+}
+/* Sidebar */
+.sidebar {
+  width: 100%;
+  display: block;
+}
+.sidebar #sidebarLogo {
+  text-align: center;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 5px;
+  margin: 5px 10px;
+  font-size: 125%;
+  color: var(--main-color);
+}
+.sidebar .body {
+  margin: 0 auto;
+  margin-top: 1em;
+  max-width: 95%;
+  display: block;
+  overflow-y: auto;
+  height:700px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.draggableEvent {
+  background: var(--border-color);
+  margin: 5px 0;
+  padding: 0 5px 3px 10px;
+}
+.draggableEvent span {
+  font-size: 75%;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.draggableEvent div {
+  font-size: 85%;
+  color: var(--text-color-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.calendarEvent{
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.calendarEvent .title {
+  font-size: 85%;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.App-link {
-  color: #61dafb;
+.calendarEvent .eventName {
+  color: var(--text-color-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.calendarEvent .eventError {
+  color: #d30606;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.calendarEvent .telephoneNumber {
+  font-size: 85%;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
