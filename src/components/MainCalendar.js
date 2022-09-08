@@ -19,7 +19,7 @@ function inElement(point, element) {
 }
 
 const MainCalendar = (props) => {
-    const {users, tasks}=props
+    const {users, tasks, id}=props
     const calendarContainer = useRef(null);
     const [weekendsVisible] = useState(true)
     const [events, setevents] = useState([])
@@ -95,7 +95,7 @@ const MainCalendar = (props) => {
     }
     const handleEventReceive = async (arg)=> {
         try {
-            const result=await api.addTask("1",arg.event.title,arg.event.extendedProps.id, arg.event.startStr,"")
+            const result=await api.addTask(id,arg.event.title,arg.event.extendedProps.id, arg.event.startStr,"")
 
             if (result.data.id !== undefined) {
 

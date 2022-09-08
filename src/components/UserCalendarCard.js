@@ -11,16 +11,16 @@ export default function UserCalendarCard(props) {
             <div className={!notfounded ? "eventName": "eventError"} >
                 {name}
             </div>
-            {telephoneNumber &&
-                <div className={"telephoneNumber"}>
-                    тел.{telephoneNumber}
-                </div>
-            }
-            {mobile &&
-                <div className={"telephoneNumber"}>
-                    моб.{mobile}
-                </div>
-            }
+            {/*{telephoneNumber &&*/}
+            {/*    <div className={"telephoneNumber"}>*/}
+            {/*        тел.{telephoneNumber}*/}
+            {/*    </div>*/}
+            {/*}*/}
+            {/*{mobile &&*/}
+            {/*    <div className={"telephoneNumber"}>*/}
+            {/*        моб.{mobile}*/}
+            {/*    </div>*/}
+            {/*}*/}
         </div>
     )
 }

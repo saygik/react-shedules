@@ -2,38 +2,25 @@ import '../App.css';
 import MainCalendar from "../components/MainCalendar";
 import Sidebar from "../components/Sidebar";
 import {useState, useEffect, useMemo, useCallback} from "react";
+import { useParams, useNavigate } from "react-router-dom"
 import api from '../api/index'
+import {isInt} from '../utils'
+import { useShedules } from '../context/data/';
 
 
 function CallBoards() {
+    let navigate = useNavigate()
+    const {id} = useParams()
+    const {getSchedule, tasks}=useShedules()
     const [users, setUsers]=useState([])
-    const [tasks, setTasks]=useState([])
-
+//    const [tasks, setTasks]=useState([])
     const [isAdmin, setAdmin]=useState(true)
-    const getSchedule = useCallback(async ()=>{
-        const result = await api.getSchedules(1)
-        if (result && result.status===200) {
-            setTasks(result.data.data)
-        }
-    }, []);
     useEffect( ()=>{
-        const getUsers=async () => {
-            const result = await api.getAdUserInGroup("brnv.rw", "CN=adusersDomainAdmins,OU=WWW-ADUSERS,OU=Служебные пользователи,OU=_Служебные записи,DC=brnv,DC=rw")
-//            const result = await api.getAdUserInGroup("brnv.rw", "CN=Администраторы компьютеров Сх НОД-2,OU=AD,OU=Служебные пользователи,OU=_Служебные записи,DC=brnv,DC=rw")
-            if (result && result.status===200) {
-                setUsers(result.data.data)
-            }
-        }
-        // const getSchedule = async () => {
-        //     const result = await api.getSchedules(1)
-        //     console.log('result',result)
-        //     if (result && result.status===200) {
-        //         setTasks(result.data.data)
-        //     }
-        // }
-        getUsers()
-        getSchedule()
-    },[])
+        if (!isInt(id)) navigate("/shedulenotfound")
+        getSchedule(id)
+    },[id])
+
+
     const sortedUsers=useMemo(()=>{
         return users.sort((a,b) => {
             const fa = a.displayName.toLowerCase();
@@ -63,7 +50,7 @@ function CallBoards() {
                     <Sidebar users={sortedUsers}/>
                 </div>
                 <div className="col">
-                    <MainCalendar users={users} tasks={tasks}/>
+                    <MainCalendar users={users} tasks={tasks} id={id}/>
                 </div>
             </main>
         </div>
