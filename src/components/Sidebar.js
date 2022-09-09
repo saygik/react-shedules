@@ -8,7 +8,7 @@ import  { Draggable } from '@fullcalendar/interaction';
 //     {id: 3, title: 'Пивоварчик Дмитрий Владимирович'}
 // ]
 export default function Sidebar(props) {
-    const {users}=props
+    const {users, name}=props
     const [draggableInitialized, setDraggableInitialized] = useState(false)
 //    const [users] = useState(INIT)
     const mapUsers=useMemo(()=>{
@@ -45,7 +45,7 @@ export default function Sidebar(props) {
         <div className={"sidebar"}>
             <div id="sidebarLogo">
                     <span>
-                        Администраторы ИВЦ2
+                        {name}
                     </span>
             </div>
             <div className={"body"}>

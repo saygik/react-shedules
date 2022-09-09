@@ -12,7 +12,7 @@ import NotFound from './NotFound';
 function CallBoards() {
     let navigate = useNavigate()
     const {id} = useParams()
-    const {getScheduleTasks, getSchedule, tasks, users, sortedUsers, loading, loaded}=useShedules()
+    const {getScheduleTasks, getSchedule, tasks, users, sortedUsers, loading, loaded, name}=useShedules()
 
     const [isAdmin, setAdmin]=useState(true)
     useEffect( ()=>{
@@ -35,7 +35,7 @@ function CallBoards() {
             </header>
             <main>
                 <div className="LeftPane" style={{display:isAdmin ? 'block': 'none'}}>
-                    <Sidebar users={sortedUsers}/>
+                    <Sidebar users={sortedUsers} name={name} />
                 </div>
                 <div className="col">
                     <MainCalendar users={users} tasks={tasks} id={id}/>

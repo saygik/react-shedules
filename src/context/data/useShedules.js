@@ -65,7 +65,7 @@ export default function useShedules() {
         
         
     }, [schedule]);
-    
+
     const sortedUsers=useMemo(()=>{
         return users.sort((a,b) => {
             const fa = a.displayName.toLowerCase();
@@ -82,6 +82,7 @@ export default function useShedules() {
 
 
     return {
+        name: schedule  && schedule.name || "",
         loading: state.loading,
         loaded: state.loaded,
         tasks: state.tasks,
