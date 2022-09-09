@@ -1,7 +1,7 @@
 function NotFound() {
     return <>
         <div>
-            NOT FOUND
+            Расписание не найдено
         </div>
     </>
 }
