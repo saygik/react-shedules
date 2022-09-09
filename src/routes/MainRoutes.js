@@ -1,14 +1,14 @@
-
 import CallBoards from '../views/CallBoards';
 import NotFound from '../views/NotFound';
+import Dashboard from '../views/Dashboard'
 
 
 // ==============================|| MAIN ROUTING ||============================== //
 
 const MainRoutes = [
-    {path: '/',    element: <CallBoards />},
-    {path: 'shedulenotfound',    element: <NotFound />},
-    {path: 'shedule/:id', element: <CallBoards />},
+    {path: '/',    element: <Dashboard />},
+    {path: 'schedulenotfound',    element: <NotFound />},
+    {path: 'schedule/:id', element: <CallBoards />},
     {path: '*',    element:<NotFound />}
 ];
 

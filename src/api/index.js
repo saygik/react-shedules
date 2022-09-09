@@ -21,6 +21,7 @@ const apiData = async (url, token = '', method = 'get', data = {}) => {
     });
 };
 
+
 // eslint-disable-next-line no-return-await
 index.getDomains = async () => await apiData('/v1/users/domains', '', 'get');
 // eslint-disable-next-line no-return-await
@@ -34,13 +35,15 @@ index.getAdUserInGroup = async (domain, group) => await apiData(`/v1/users/ad/${
 // eslint-disable-next-line no-return-await
 index.getOneUser = async (userPN) => await apiData(`/v1/user/ad/${userPN}`, '', 'get');
 // eslint-disable-next-line no-return-await
-index.addTask = async (idc,title,upn,start, end) => await apiData('/v1/schedule', '', 'post', JSON.stringify({ idc,title,upn,start, end }));
+index.addTask = async (idc,title,upn,start, end) => await apiData(`/v1/schedule/task`, '', 'post', JSON.stringify({ idc,title,upn,start, end }));
 // eslint-disable-next-line no-return-await
-index.getSchedules = async (idc) => await apiData(`/v1/schedule/${idc}`, '', 'get');
+index.getSchedule = async (id) => await apiData(`/v1/schedules/${id}`, '', 'get');
 // eslint-disable-next-line no-return-await
-index.updateTask = async (id,start,end) => await apiData(`/v1/schedule/${id}`, '', 'put', JSON.stringify({ start, end }));
+index.getScheduleTasks = async (id) => await apiData(`/v1/schedule/tasks/${id}`, '', 'get');
 // eslint-disable-next-line no-return-await
-index.deleteTask = async (id) => await apiData(`/v1/schedule/${id}`, '', 'delete');
+index.updateTask = async (id,start,end) => await apiData(`/v1/schedule/task/${id}`, '', 'put', JSON.stringify({ start, end }));
+// eslint-disable-next-line no-return-await
+index.deleteTask = async (id) => await apiData(`/v1/schedule/task/${id}`, '', 'delete');
 
 export default index;
 

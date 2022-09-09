@@ -11,12 +11,13 @@ import { useShedules } from '../context/data/';
 function CallBoards() {
     let navigate = useNavigate()
     const {id} = useParams()
-    const {getSchedule, tasks}=useShedules()
+    const {getScheduleTasks, getSchedule, tasks}=useShedules()
     const [users, setUsers]=useState([])
 //    const [tasks, setTasks]=useState([])
     const [isAdmin, setAdmin]=useState(true)
     useEffect( ()=>{
         if (!isInt(id)) navigate("/shedulenotfound")
+      //  getScheduleTasks(id)
         getSchedule(id)
     },[id])
 
