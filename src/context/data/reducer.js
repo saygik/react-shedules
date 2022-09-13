@@ -13,8 +13,6 @@ export const initialState = {
 
 export const reducer = (state, action) => {
     switch (action.type) {
-        case actions.SET_MESSAGE:
-            return { ...state, msg: action.payload };
         case actions.SCHEDULE_REQUEST:
             return { ...state, schedule: null, users: [],  tasks: [], loaded: false, loading: true };
         case actions.SCHEDULE_SUCCESS:

@@ -2,6 +2,7 @@ import { useCallback, useContext, useMemo, useEffect } from 'react';
 import DataContext from './context';
 import api from "../../api";
 import { actions } from './action-types';
+import {  toast } from 'react-toastify';
 
 export default function useShedules() {
     const useData = () => useContext(DataContext);
@@ -21,11 +22,12 @@ export default function useShedules() {
                 dispatch({ type: actions.SCHEDULE_TASKS_SUCCESS, payload: result.data.data })
             } else {
                 dispatch({ type: actions.SCHEDULE_TASKS_ERROR })
+                toast.error('Невозмозно получить задания  расписания с сервера:');            
             }
         } catch (err) {
             dispatch({ type: actions.SCHEDULE_TASKS_ERROR })
-            dispatch({ type: actions.SET_MESSAGE, payload: "Ошибка получения запроса" })
-            setTimeout(dispatch({ type: actions.SET_MESSAGE, payload: "" }), 1000)
+            toast.error('Невозмозно получить задания  расписания с сервера:'+ err.message,{autoClose:5000} );            
+
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
@@ -36,9 +38,11 @@ export default function useShedules() {
             if (result && result.status===200) {
                 dispatch({ type: actions.SCHEDULE_SUCCESS, payload: result.data.data })
             } else {
+                toast.error('Невозмозно получить расписание с сервера',{autoClose:5000});            
                 dispatch({ type: actions.SCHEDULE_ERROR })
             }
         } catch (err) {
+            toast.error('Невозмозно получить расписание с сервера:'+ err.message,{autoClose:5000} );
             dispatch({ type: actions.SCHEDULE_ERROR })
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
@@ -50,9 +54,12 @@ export default function useShedules() {
                 dispatch({ type: actions.SCHEDULE_USERS_SUCCESS, payload: result.data.data })
             } else {
                 dispatch({ type: actions.SCHEDULE_USERS_ERROR })
+                toast.error('Невозмозно получить пользователей расписания с сервера:');            
             }
         } catch (err) {
             dispatch({ type: actions.SCHEDULE_USERS_ERROR })
+            toast.error('Невозмозно получить пользователей расписания с сервера:'+ err.message,{autoClose:5000} );
+
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 

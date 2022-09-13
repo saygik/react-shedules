@@ -7,6 +7,7 @@ import api from '../api/index'
 import {isInt} from '../utils'
 import { useShedules } from '../context/data/';
 import NotFound from './NotFound';
+import Loader from '../components/Loader'
 
 
 function CallBoards() {
@@ -21,7 +22,7 @@ function CallBoards() {
 
    if (!isInt(id)) return <NotFound />
 
-   if (loading) return <>ЛОАДЕР</>   
+   if (loading) return <Loader/>      
    if (!loading && !loaded) return <NotFound />
     return (
         <div className="App">

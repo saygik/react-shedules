@@ -1,7 +1,6 @@
 // eslint-disable-next-line import/prefer-default-export
 export const actions = {
     SET_SCHEDULE: 'SET_SCHEDULE',
-    SET_MESSAGE: 'SET_MESSAGE',
     SCHEDULE_REQUEST: 'SCHEDULE_REQUEST',
     SCHEDULE_SUCCESS: 'SCHEDULE_SUCCESS',
     SCHEDULE_ERROR: 'SCHEDULE_ERROR',
