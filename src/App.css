@@ -23,6 +23,9 @@ http://moodydev.io
   transition: 0.4s ease-in;
 }
 
+.fc-daygrid-day-events {
+  margin: 0 2px;  
+}
 .fc-daygrid-event {
   white-space: break-spaces!important;
   border-radius: 0px!important;
@@ -38,6 +41,7 @@ http://moodydev.io
 .fc .fc-daygrid-day-number {
   font-weight: bold;
   font-size: .85em;
+  padding: 1px;
 }
 .fc .fc-toolbar-title {
   font-size: 1.25em!important;
@@ -72,9 +76,9 @@ http://moodydev.io
 
 :root {
   --main-color: #1a8fff;
-  --text-color: #777;
-  --text-color-dark: #3f3f3f;
-  --text-color-light: #ccc;
+  --text-color-dark: #5c5b5b;
+  --text-color-alternative: #03721b;
+  --text-color-light: #808080;
   --border-color: #eee;
   --bg-color: #f9f9f9;
   --neutral-color: #fff;
@@ -202,38 +206,54 @@ main {
 }
 
 .draggableEvent {
-  background: var(--border-color);
-  margin: 5px 0;
+  position: relative;
+  background: var(--bg-color);
+  margin: 3px 0;
   padding: 0 5px 3px 10px;
 }
 .draggableEvent span {
+  position: absolute;
+  top: 3px;
+  left: 5px;
   font-size: 75%;
-  color: var(--text-color);
+  color: var(--text-color-light);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .draggableEvent div {
-  font-size: 85%;
+  padding: 15px 0 2px;
+  font-size: 80%;
   color: var(--text-color-dark);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .calendarEvent{
+  position: relative;
   padding-left: 5px;
   padding-right: 5px;
 }
+.calendarEvent:hover{
+  opacity: 0.95;
+  transition: 0.3s ease-in;
+  background: var(--bg-color);
+}
 .calendarEvent .title {
-  font-size: 85%;
-  color: var(--text-color);
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  font-size: 75%;
+  color: var(--text-color-light);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .calendarEvent .eventName {
+  padding: 12px 4px 2px;
   color: var(--text-color-dark);
+  font-size: 90%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -243,7 +263,6 @@ main {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
 }
 
 .calendarEvent .telephoneNumber {
@@ -252,4 +271,11 @@ main {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 100vh;
 }
