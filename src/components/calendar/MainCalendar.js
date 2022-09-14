@@ -4,8 +4,8 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import ruLocale from '@fullcalendar/core/locales/ru';
-import UserCalendarCard from './UserCalendarCard'
-import {INITIAL_EVENTS, createEventId} from '../event-utils'
+import UserCalendarCard from './UserCalendarCard';
+import {INITIAL_EVENTS, createEventId} from '../event-utils';
 import {  toast } from 'react-toastify';
 import api from "../../api";
 
@@ -18,7 +18,6 @@ function inElement(point, element) {
 
     return point.x >= left && point.x <= right && point.y >= top && point.y <= bottom;
 }
-
 const MainCalendar = (props) => {
     const {users, tasks, id, setVisibility}=props
     const calendarContainer = useRef(null);
@@ -193,7 +192,6 @@ const MainCalendar = (props) => {
 
 //        event.remove();
     }
-
     return (
         <div className="calendar" ref={calendarContainer}>
             <FullCalendar
