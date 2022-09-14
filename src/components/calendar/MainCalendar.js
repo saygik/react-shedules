@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import ruLocale from '@fullcalendar/core/locales/ru';
-import UserCalendarCard from './UserCalendarCard';
+import UserCalendarCard from '../UserCalendarCard';
 import {INITIAL_EVENTS, createEventId} from '../event-utils';
 import {  toast } from 'react-toastify';
 import api from "../../api";
@@ -19,7 +19,7 @@ function inElement(point, element) {
     return point.x >= left && point.x <= right && point.y >= top && point.y <= bottom;
 }
 const MainCalendar = (props) => {
-    const {users, tasks, id, setVisibility}=props
+    const {users, tasks, id, setShowPopupCard}=props
     const calendarContainer = useRef(null);
     const [weekendsVisible] = useState(true)
     const [events, setevents] = useState([])
@@ -151,11 +151,11 @@ const MainCalendar = (props) => {
     }
     const handleEventMouseHover = (clickInfo) => {
 //        console.log('on', clickInfo)
-        setVisibility(true)
+          setShowPopupCard(true)
       }
       const handleEventMouseLeave = (clickInfo) => {
 //        console.log('on', clickInfo)
-        setVisibility(false)
+          setShowPopupCard(false)
       }
     const renderCellContent  = (eventInfo) => {
     const weekday=eventInfo.date.getDay()

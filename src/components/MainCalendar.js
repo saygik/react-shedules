@@ -19,10 +19,13 @@ function inElement(point, element) {
 }
 
 const MainCalendar = (props) => {
-    const {users, tasks, id}=props
+    const {users, tasks, id, setPopupCard}=props
+
     const calendarContainer = useRef(null);
     const [weekendsVisible] = useState(true)
     const [events, setevents] = useState([])
+    const [isEventClicked, setEventClicked] = useState(false)
+
     // const events= useMemo(()=>{
     //     if (!tasks) return
     //     const newtasks=tasks.map(task=>{
@@ -142,13 +145,7 @@ const MainCalendar = (props) => {
             })
         }
     }
-    const handleEventClick = (clickInfo) => {
-        //clickInfo.event.remove()
-    }
-    const handleEvents = (events) => {
-     //   console.log('---------------', events)
-//        setCurrentEvents(events)
-    }
+
     const renderCellContent  = (eventInfo) => {
     const weekday=eventInfo.date.getDay()
     const weekend=(weekday===0 || weekday===6)
@@ -185,6 +182,33 @@ const MainCalendar = (props) => {
 //        event.remove();
     }
 
+    const handleEventMouseEnter = (clickInfo) => {
+        //clickInfo.event.remove()
+        //setPopupCard(clickInfo.event)
+    }
+    const handleEventMouseLeave = (clickInfo) => {
+        //clickInfo.event.remove()
+        setPopupCard(null)
+    }
+    const handleEventClick = (clickInfo) => {
+        if (isEventClicked) {
+            setPopupCard(null)
+        } else {
+            setEventClicked(true)
+            console.log('clickInfo', clickInfo)
+            setPopupCard(clickInfo.event)            
+        }
+
+        setTimeout(function(){
+            setEventClicked(false)
+        }, 250);        
+
+
+    }
+    const handleEvents = (events) => {
+     //   console.log('---------------', events)
+//        setCurrentEvents(events)
+    }
     return (
         <div className="calendar" ref={calendarContainer}>
             <FullCalendar
@@ -213,6 +237,7 @@ const MainCalendar = (props) => {
                 eventContent={renderEventContent} // custom render function
                 dayCellContent={renderCellContent}
                 eventClick={handleEventClick}
+                eventCl
                 eventsSet={handleEvents} // called after events are initialized/added/changed/removed
                 eventColor= 'rgba(0,0,0,0.07)'
                 eventTextColor = '#444'
@@ -223,6 +248,8 @@ const MainCalendar = (props) => {
                 eventChange={handleEventUpdate}
                 eventReceive={handleEventReceive}
                 eventDragStop={handleEventDragStop}
+                eventMouseEnter={handleEventMouseEnter}
+                eventMouseLeave={handleEventMouseLeave}
 
                 /* you can update a remote database when these fire:
                 eventAdd={function(){}}
