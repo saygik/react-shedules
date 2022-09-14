@@ -41,7 +41,7 @@ http://moodydev.io
 .fc .fc-daygrid-day-number {
   font-weight: bold;
   font-size: .85em;
-  padding: 1px;
+  padding: 1px!important;
 }
 .fc .fc-toolbar-title {
   font-size: 1.25em!important;
