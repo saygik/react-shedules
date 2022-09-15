@@ -16,7 +16,6 @@ export default function Hover(props) {
     //     window.removeEventListener("mousemove", setFromEvent);
     //   };
     // }, []);
-
     const hoverStyle= useMemo(() => {
       if (isNaN(shiftX)) {
         shiftX = 0;
