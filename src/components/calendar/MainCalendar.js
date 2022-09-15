@@ -1,14 +1,18 @@
 import React, {useEffect, useState, useRef, useMemo, useCallback} from "react";
+import Box from '@mui/material/Box';
 import FullCalendar, {formatDate} from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import ruLocale from '@fullcalendar/core/locales/ru';
-import UserCalendarCard from '../UserCalendarCard';
-import {INITIAL_EVENTS, createEventId} from '../event-utils';
+import UserCalendarCard from './UserCalendarCard'
+import {INITIAL_EVENTS, createEventId} from '../event-utils'
 import {  toast } from 'react-toastify';
-import api from "../../api";
+import { styled } from '@mui/material/styles';
 
+import {drawerWidth} from '../../utils'
+
+import api from "../../api";
 function inElement(point, element) {
     const rect = element.getBoundingClientRect();
     const top = rect.top + window.scrollY;
@@ -18,11 +22,36 @@ function inElement(point, element) {
 
     return point.x >= left && point.x <= right && point.y >= top && point.y <= bottom;
 }
+
+
+const Container = styled(Box, {
+    shouldForwardProp: (prop) => prop !== 'open',
+})  (({ theme, open }) => ({
+    transition: theme.transitions.create(['margin', 'width'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+    }),
+    ...(open && {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: `${drawerWidth}px`,
+        transition: theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
+    }),
+    paddingTop:0,
+    paddingBottom:0,
+}));
+
+
 const MainCalendar = (props) => {
-    const {users, tasks, id, setShowPopupCard}=props
+    const {users, tasks, id, setPopupCard, open}=props
+
     const calendarContainer = useRef(null);
     const [weekendsVisible] = useState(true)
     const [events, setevents] = useState([])
+    const [isEventClicked, setEventClicked] = useState(false)
+
     // const events= useMemo(()=>{
     //     if (!tasks) return
     //     const newtasks=tasks.map(task=>{
@@ -76,7 +105,6 @@ const MainCalendar = (props) => {
         })
         setevents(newEvents)
     }, [tasks, users])
-
 
     const DeleteEventById =(id)=>{
         setevents(
@@ -142,21 +170,6 @@ const MainCalendar = (props) => {
             })
         }
     }
-    const handleEventClick = (clickInfo) => {
-        //clickInfo.event.remove()
-    }
-    const handleEvents = (events) => {
-     //   console.log('---------------', events)
-//        setCurrentEvents(events)
-    }
-    const handleEventMouseHover = (clickInfo) => {
-//        console.log('on', clickInfo)
-          setShowPopupCard(true)
-      }
-      const handleEventMouseLeave = (clickInfo) => {
-//        console.log('on', clickInfo)
-          setShowPopupCard(false)
-      }
     const renderCellContent  = (eventInfo) => {
     const weekday=eventInfo.date.getDay()
     const weekend=(weekday===0 || weekday===6)
@@ -192,8 +205,37 @@ const MainCalendar = (props) => {
 
 //        event.remove();
     }
+
+    const handleEventMouseEnter = (clickInfo) => {
+        //clickInfo.event.remove()
+        //setPopupCard(clickInfo.event)
+    }
+    const handleEventMouseLeave = (clickInfo) => {
+        //clickInfo.event.remove()
+        setPopupCard(null)
+    }
+    const handleEventClick = (clickInfo) => {
+        if (isEventClicked) {
+            setPopupCard(null)
+        } else {
+            setEventClicked(true)
+            setPopupCard(clickInfo.event)            
+        }
+
+        setTimeout(function(){
+            setEventClicked(false)
+        }, 250);        
+
+
+    }
+    const handleEvents = (events) => {
+     //   console.log('---------------', events)
+//        setCurrentEvents(events)
+    }
     return (
-        <div className="calendar" ref={calendarContainer}>
+        <Container ref={calendarContainer} open={open} sx={{
+            width:'100%'
+        }}>
             <FullCalendar
                 timeZone= {'UTC'}
 //                businessHours={{daysOfWeek: [ 1, 2, 3, 4,5 ]}}                   //Рабочие часы
@@ -220,8 +262,10 @@ const MainCalendar = (props) => {
                 eventContent={renderEventContent} // custom render function
                 dayCellContent={renderCellContent}
                 eventClick={handleEventClick}
+                eventCl
                 eventsSet={handleEvents} // called after events are initialized/added/changed/removed
-                eventColor= 'rgba(0,0,0,0.05)'
+                eventColor= 'rgba(0,0,0,0.07)'
+                eventTextColor = '#444'
                 droppable={true}
                 eventAdd={function(addInfo ) {
                     console.log('eventAdd', addInfo )
@@ -229,15 +273,16 @@ const MainCalendar = (props) => {
                 eventChange={handleEventUpdate}
                 eventReceive={handleEventReceive}
                 eventDragStop={handleEventDragStop}
-                eventMouseEnter={handleEventMouseHover}
+                eventMouseEnter={handleEventMouseEnter}
                 eventMouseLeave={handleEventMouseLeave}
+
                 /* you can update a remote database when these fire:
                 eventAdd={function(){}}
                 eventChange={function(){}}
                 eventRemove={function(){}}
                 */
             />
-        </div>
+        </Container>
     );
 }
 

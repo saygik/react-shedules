@@ -1,6 +1,13 @@
 import * as React from 'react';
 import {useState, useEffect, useMemo} from "react";
 import  { Draggable } from '@fullcalendar/interaction';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+
 
 // const INIT=[
 //     {id: 1, title: 'Крапивин Игорь Викторович'},
@@ -42,20 +49,26 @@ export default function Sidebar(props) {
     }, [users, draggableInitialized])
 
     return (
-        <div className={"sidebar"}>
-            <div id="sidebarLogo">
-                    <span>
-                        {name}
-                    </span>
-            </div>
-            <div className={"body"}>
+        <Box sx={{width: '100%'}}>
+        <Typography  color="text.secondary" sx={{ fontSize:'0.9rem', mb:1 }}>
+        {name}
+         </Typography>
+
+            <Box sx={{
+                  margin: '0 auto',
+                  marginTop: '1em',
+                  maxWidth: '95%',
+                  display: 'block',
+                  overflowY: 'auto',
+                  height:'700px'
+            }}>
                 <div id="workOrderContainer" >
                   {users.map((user) => (
                       <UserMiniCard user={user} key={user.userPrincipalName}/>
                   ))}
               </div>
-            </div>
-        </div>
+            </Box>
+        </Box>
     );
 };
 
