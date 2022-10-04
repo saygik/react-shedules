@@ -9,10 +9,11 @@ import UserCalendarCard from './UserCalendarCard'
 import {INITIAL_EVENTS, createEventId} from '../event-utils'
 import {  toast } from 'react-toastify';
 import { styled } from '@mui/material/styles';
-
 import {drawerWidth} from '../../utils'
-
 import api from "../../api";
+import './calendar.css';
+
+
 function inElement(point, element) {
     const rect = element.getBoundingClientRect();
     const top = rect.top + window.scrollY;
@@ -23,6 +24,25 @@ function inElement(point, element) {
     return point.x >= left && point.x <= right && point.y >= top && point.y <= bottom;
 }
 
+const DayBox = styled('span', {
+    shouldForwardProp: (prop) => prop !== 'weekend',
+})  (({ theme, weekend }) => ({
+    fontWeight: '700',
+    lineHeight: '1',
+    opacity: '0.10',
+    fontSize: '4em',
+    position: 'absolute',
+    top: '-0.02em',
+    right: '0.1em',
+    transition: '0.25s ease-out',
+    letterSpacing: '-0.07em',
+    color:'#1a8fff',
+    '&:hover': {
+        opacity: '0.65',
+        transition: '0.4s ease-in'
+     },    
+    ...(weekend && {color:'#b20606'}),
+}));
 
 const Container = styled(Box, {
     shouldForwardProp: (prop) => prop !== 'open',
@@ -31,9 +51,11 @@ const Container = styled(Box, {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
+    marginTop:'20px',
+    padding:'0 10px',
+    borderStyle: 'none',
     ...(open && {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
+        paddingLeft: `calc(10px + ${drawerWidth}px)`,
         transition: theme.transitions.create(['margin', 'width'], {
             easing: theme.transitions.easing.easeOut,
             duration: theme.transitions.duration.enteringScreen,
@@ -51,6 +73,7 @@ const MainCalendar = (props) => {
     const [weekendsVisible] = useState(true)
     const [events, setevents] = useState([])
     const [isEventClicked, setEventClicked] = useState(false)
+    const [isEventHover, setEventHover] = useState(false)
 
     // const events= useMemo(()=>{
     //     if (!tasks) return
@@ -174,9 +197,7 @@ const MainCalendar = (props) => {
     const weekday=eventInfo.date.getDay()
     const weekend=(weekday===0 || weekday===6)
 
-    return (
-            <span className="bg" style={{color:weekend ? '#b20606':'#1a8fff'}}>{eventInfo.dayNumberText}</span>
-    )
+    return <DayBox weekend={weekend}>{eventInfo.dayNumberText}</DayBox>
 }
     const renderEventContent = (eventInfo) =>{
         return (
@@ -207,19 +228,32 @@ const MainCalendar = (props) => {
     }
 
     const handleEventMouseEnter = (clickInfo) => {
+        if (!isEventHover) { 
+        setTimeout(function(){
+            setPopupCard(clickInfo.event)     
+            setEventHover(false)
+        }, 250); 
+        setEventHover(true)        
+        }
         //clickInfo.event.remove()
         //setPopupCard(clickInfo.event)
     }
     const handleEventMouseLeave = (clickInfo) => {
         //clickInfo.event.remove()
+        setEventHover(false)
         setPopupCard(null)
     }
     const handleEventClick = (clickInfo) => {
         if (isEventClicked) {
             setPopupCard(null)
+            alert(
+                'Clicked ' + clickInfo.event.title + '.\n' +
+                'Will open ' + clickInfo.event.url + ' in a new tab'
+              );
         } else {
             setEventClicked(true)
-            setPopupCard(clickInfo.event)            
+            setPopupCard(null)
+//            setPopupCard(clickInfo.event)            
         }
 
         setTimeout(function(){
@@ -233,9 +267,7 @@ const MainCalendar = (props) => {
 //        setCurrentEvents(events)
     }
     return (
-        <Container ref={calendarContainer} open={open} sx={{
-            width:'100%'
-        }}>
+        <Container ref={calendarContainer} open={open} >
             <FullCalendar
                 timeZone= {'UTC'}
 //                businessHours={{daysOfWeek: [ 1, 2, 3, 4,5 ]}}                   //Рабочие часы
@@ -264,7 +296,7 @@ const MainCalendar = (props) => {
                 eventClick={handleEventClick}
                 eventCl
                 eventsSet={handleEvents} // called after events are initialized/added/changed/removed
-                eventColor= 'rgba(0,0,0,0.07)'
+                eventColor= 'rgba(0,0,0,0.05)'
                 eventTextColor = '#444'
                 droppable={true}
                 eventAdd={function(addInfo ) {

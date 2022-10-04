@@ -89,7 +89,7 @@ export default function useShedules() {
 
 
     return {
-        name: schedule  && schedule.name || "",
+        name: schedule  && (schedule.name || ""),
         loading: state.loading,
         loaded: state.loaded,
         tasks: state.tasks,

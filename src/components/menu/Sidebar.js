@@ -1,7 +1,6 @@
 import { styled, useTheme } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -10,9 +9,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
 import InboxPerson from '@mui/icons-material/Person';
-import MailIcon from '@mui/icons-material/Mail';
 import { useState, useEffect, useMemo } from "react";
 import { Draggable } from '@fullcalendar/interaction';
 import { drawerWidth } from '../../utils'
@@ -58,7 +55,7 @@ function Sidebar({ open, setOpen, users }) {
                 <div id="workOrderContainer" >
                     {!!users && users.map((user) => (
                         <ListItem key={user.userPrincipalName} disablePadding className='draggableEvent' id={user.userPrincipalName}>
-                            <ListItemButton sx={{p:0}}>
+                            <ListItemButton sx={{p:0, pr:1}}>
                                 <ListItemIcon sx={{minWidth:30}}>
                                     <InboxPerson /> 
                                 </ListItemIcon>
@@ -68,9 +65,7 @@ function Sidebar({ open, setOpen, users }) {
                             </ListItemButton>
                         </ListItem>
                     ))}
-                     white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
                     {/* {!!users && users.map((user) => (
                       <UserMiniCard user={user} key={user.userPrincipalName}/>
                   ))} */}
