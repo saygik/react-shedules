@@ -88,7 +88,12 @@ export default function useShedules() {
     },[users])
 
 
+    const login = async()=>{
+        const result = await api.login()
+    }
+
     return {
+        login,
         name: schedule  && (schedule.name || ""),
         loading: state.loading,
         loaded: state.loaded,

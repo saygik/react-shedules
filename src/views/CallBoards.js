@@ -12,12 +12,23 @@ import PopupCard from '../components/cards/Usercard'
 import Hover from '../components/Hover'
 import Bar from '../components/menu/Bar'
 import Sidebar from '../components/menu/Sidebar'
+import EventForm from '../components/forms/EventForm'
 
 function CallBoards() {
     let navigate = useNavigate()
     const {id} = useParams()
-    const { getSchedule, tasks, users, sortedUsers, loading, loaded, name}=useShedules()
+    const { getSchedule, tasks, users, sortedUsers, loading, loaded, name, login}=useShedules()
     const [popupCard, setPopupCard] = useState(null);
+    const [openForm, setOpenForm] = React.useState(false);
+
+    const handleFormOpen = () => {
+        setOpenForm(true);
+      };
+    
+      const handleFormClose = () => {
+        setOpenForm(false);
+      };
+
 //    const [isAdmin, setAdmin]=useState(true)
     const [open, setOpen] = React.useState(false);
 
@@ -34,15 +45,16 @@ function CallBoards() {
     return (
         <Box sx={{ pt:7 }}>
         <CssBaseline />
-        <Bar open={open} setOpen={setOpen}/>
+        <Bar open={open} setOpen={setOpen} login={login} />
         <Sidebar open={open} setOpen={setOpen} users={sortedUsers}  name={name}/>
             <main>
                 {/* <PopupCard type="hover" popupCard={{title:'Пивоварчик Дмитрий Владимирович', extendedProps:{title:'администратор баз данных', telephoneNumber:'493668'}}}/>          */}
                 <Hover shiftX={310} shiftY={175}  showPopup={!!popupCard}>
                         <PopupCard type="hover" popupCard={popupCard}/>         
-                        <MainCalendar open={open} users={users} tasks={tasks} id={id} type="trigger" setPopupCard={setPopupCard}/>           
+                        <MainCalendar open={open} users={users} tasks={tasks} id={id} type="trigger" setPopupCard={setPopupCard} handleFormOpen={handleFormOpen} />           
                     </Hover>
             </main>
+            <EventForm open={openForm}  handleClose={handleFormClose} />
         </Box>
     );
 }

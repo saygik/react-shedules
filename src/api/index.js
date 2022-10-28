@@ -13,6 +13,7 @@ const index = {};
 const apiData = async (url, token = '', method = 'get', data = {}) => {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers.Authorization = `Bearer ${token}`;
+//    console.log('11111111', token)
     return axios({
         method,
         url: _apiBase + url,
@@ -44,6 +45,7 @@ index.getScheduleTasks = async (id) => await apiData(`/v1/schedule/tasks/${id}`,
 index.updateTask = async (id,start,end) => await apiData(`/v1/schedule/task/${id}`, '', 'put', JSON.stringify({ start, end }));
 // eslint-disable-next-line no-return-await
 index.deleteTask = async (id) => await apiData(`/v1/schedule/task/${id}`, '', 'delete');
-
+// eslint-disable-next-line no-return-await
+index.loginuser = async (token) => await apiData('/v1/loginuser', token, 'get');
 export default index;
 

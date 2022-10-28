@@ -1,15 +1,16 @@
-import React, {useEffect, useState, useRef, useMemo, useCallback} from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import Box from '@mui/material/Box';
-import FullCalendar, {formatDate} from '@fullcalendar/react'
+import FullCalendar, { formatDate } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import ruLocale from '@fullcalendar/core/locales/ru';
 import UserCalendarCard from './UserCalendarCard'
-import {INITIAL_EVENTS, createEventId} from '../event-utils'
-import {  toast } from 'react-toastify';
+import CustomEvent from './customElements/CustomEvent'
+import { INITIAL_EVENTS, createEventId } from '../event-utils'
+import { toast } from 'react-toastify';
 import { styled } from '@mui/material/styles';
-import {drawerWidth} from '../../utils'
+import { drawerWidth } from '../../utils'
 import api from "../../api";
 import './calendar.css';
 
@@ -26,7 +27,7 @@ function inElement(point, element) {
 
 const DayBox = styled('span', {
     shouldForwardProp: (prop) => prop !== 'weekend',
-})  (({ theme, weekend }) => ({
+})(({ theme, weekend }) => ({
     fontWeight: '700',
     lineHeight: '1',
     opacity: '0.10',
@@ -36,23 +37,23 @@ const DayBox = styled('span', {
     right: '0.1em',
     transition: '0.25s ease-out',
     letterSpacing: '-0.07em',
-    color:'#1a8fff',
+    color: '#1a8fff',
     '&:hover': {
         opacity: '0.65',
         transition: '0.4s ease-in'
-     },    
-    ...(weekend && {color:'#b20606'}),
+    },
+    ...(weekend && { color: '#b20606' }),
 }));
 
 const Container = styled(Box, {
     shouldForwardProp: (prop) => prop !== 'open',
-})  (({ theme, open }) => ({
+})(({ theme, open }) => ({
     transition: theme.transitions.create(['margin', 'width'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
-    marginTop:'20px',
-    padding:'0 10px',
+    marginTop: '20px',
+    padding: '0 10px',
     borderStyle: 'none',
     ...(open && {
         paddingLeft: `calc(10px + ${drawerWidth}px)`,
@@ -61,13 +62,13 @@ const Container = styled(Box, {
             duration: theme.transitions.duration.enteringScreen,
         }),
     }),
-    paddingTop:0,
-    paddingBottom:0,
+    paddingTop: 0,
+    paddingBottom: 0,
 }));
 
 
 const MainCalendar = (props) => {
-    const {users, tasks, id, setPopupCard, open}=props
+    const { users, tasks, id, setPopupCard, open, handleFormOpen } = props
 
     const calendarContainer = useRef(null);
     const [weekendsVisible] = useState(true)
@@ -100,81 +101,81 @@ const MainCalendar = (props) => {
     //     })
     //     return newEvents
     // }, [tasks, users])
-    const getExtendedPropertys = useCallback((ev)=>{
-        const ADUserFinded=users.find(user=>(user.userPrincipalName===ev.extendedProps.id))
-        let newEvent={...ev}
-        if (!ADUserFinded ) {
-            newEvent.extendedProps.notfound=true
+    const getExtendedPropertys = useCallback((ev) => {
+        const ADUserFinded = users.find(user => (user.userPrincipalName === ev.extendedProps.id))
+        let newEvent = { ...ev }
+        if (!ADUserFinded) {
+            newEvent.extendedProps.notfound = true
             return newEvent
         }
-        newEvent.title=ADUserFinded.displayName
-        newEvent.extendedProps.telephoneNumber=ADUserFinded.telephoneNumber
-        newEvent.extendedProps.title=ADUserFinded.title
-        newEvent.extendedProps.mobile=ADUserFinded.mobile
-        newEvent.extendedProps.notfound=false
+        newEvent.title = ADUserFinded.displayName
+        newEvent.extendedProps.telephoneNumber = ADUserFinded.telephoneNumber
+        newEvent.extendedProps.title = ADUserFinded.title
+        newEvent.extendedProps.mobile = ADUserFinded.mobile
+        newEvent.extendedProps.notfound = false
         return newEvent
     }, [users]);
-    useEffect(()=>{
+    useEffect(() => {
         if (!tasks) return
-        const newtasks=tasks.map(task=>{
-            const newtask={...task,  extendedProps:{id:task.upn}}
+        const newtasks = tasks.map(task => {
+            const newtask = { ...task, extendedProps: { id: task.upn } }
             delete newtask.upn
             delete newtask.idc
             return newtask
         })
-        if (!users) return         setevents(newtasks)
-        const newEvents=newtasks.map(ev=>{
+        if (!users) return setevents(newtasks)
+        const newEvents = newtasks.map(ev => {
             return getExtendedPropertys(ev)
         })
         setevents(newEvents)
     }, [tasks, users])
 
-    const DeleteEventById =(id)=>{
+    const DeleteEventById = (id) => {
         setevents(
-            events.filter(evt=>evt.id!=id)
+            events.filter(evt => evt.id != id)
         )
     }
-    const UpdateEventDate =(oldEvent)=>{
+    const UpdateEventDate = (oldEvent) => {
         setevents(
-            events.map(evt=>evt.id===oldEvent.id ? {...evt,allDay:true, start: oldEvent.start, end: oldEvent.end}: evt )
+            events.map(evt => evt.id === oldEvent.id ? { ...evt, allDay: true, start: oldEvent.start, end: oldEvent.end } : evt)
         )
     }
-    const AddEvent =(event)=>{
+    const AddEvent = (event) => {
         setevents(
-            [...events,getExtendedPropertys(event)]
+            [...events, getExtendedPropertys(event)]
         )
     }
-    const handleEventReceive = async (arg)=> {
+    const handleEventReceive = async (arg) => {
         try {
-            const result=await api.addTask(id,arg.event.title,arg.event.extendedProps.id, arg.event.startStr,"")
+            const result = await api.addTask(id, arg.event.title, arg.event.extendedProps.id, arg.event.startStr, "")
 
             if (result.data.id !== undefined) {
 
-                AddEvent({ title: arg.event.title, allDay: true, start: arg.event.start, extendedProps: {id: arg.event.extendedProps.id}, id: result.data.id})
+                AddEvent({ title: arg.event.title, allDay: true, start: arg.event.start, extendedProps: { id: arg.event.extendedProps.id }, id: result.data.id })
                 arg.event.remove()
             }
-            toast.success('Событие добавлено!', );
+            toast.success('Событие добавлено!',);
         } catch (e) {
             console.log(e)
-            toast.error('Событие не добавлено!', );
+            toast.error('Событие не добавлено!',);
             arg.event.remove()
 
         }
 
-//        newEvent.id=createEventId()
-//        setCurrentEvents([...currentEvents,newEvent])
+        //        newEvent.id=createEventId()
+        //        setCurrentEvents([...currentEvents,newEvent])
     }
-    const handleEventUpdate = async ({event,oldEvent} ) =>{
+    const handleEventUpdate = async ({ event, oldEvent }) => {
         try {
-            const result = await api.updateTask(event.id, event.startStr, !event.end ? "": event.endStr)
-            if (result.status===200) {
+            const result = await api.updateTask(event.id, event.startStr, !event.end ? "" : event.endStr)
+            if (result.status === 200) {
                 UpdateEventDate(event)
-                toast.info('Событие изменено!' );
+                toast.info('Событие изменено!');
             }
         } catch (e) {
-            console.log('err',e)
+            console.log('err', e)
             UpdateEventDate(oldEvent)
-            toast.error('Событие не изменено!' );
+            toast.error('Событие не изменено!');
         }
 
     }
@@ -193,13 +194,13 @@ const MainCalendar = (props) => {
             })
         }
     }
-    const renderCellContent  = (eventInfo) => {
-    const weekday=eventInfo.date.getDay()
-    const weekend=(weekday===0 || weekday===6)
+    const renderCellContent = (eventInfo) => {
+        const weekday = eventInfo.date.getDay()
+        const weekend = (weekday === 0 || weekday === 6)
 
-    return <DayBox weekend={weekend}>{eventInfo.dayNumberText}</DayBox>
-}
-    const renderEventContent = (eventInfo) =>{
+        return <DayBox weekend={weekend}>{eventInfo.dayNumberText}</DayBox>
+    }
+    const renderEventContent = (eventInfo) => {
         return (
             <UserCalendarCard
                 name={eventInfo.event.title}
@@ -211,66 +212,71 @@ const MainCalendar = (props) => {
 
         )
     }
-    const handleEventDragStop = async ({ event, jsEvent }) =>{
+    const handleEventDragStop = async ({ event, jsEvent }) => {
         if (!calendarContainer.current) return;
         if (inElement({ x: jsEvent.pageX, y: jsEvent.pageY }, calendarContainer.current)) return;
         try {
             const result = await api.deleteTask(event.id)
-            if (result.status===200) {
+            if (result.status === 200) {
                 DeleteEventById(event.id)
-                toast.info('Событие удалено!', );            }
+                toast.info('Событие удалено!',);
+            }
         } catch (e) {
-            console.log('err',e)
-            toast.error('Событие не удалено!' );
+            console.log('err', e)
+            toast.error('Событие не удалено!');
         }
 
-//        event.remove();
+        //        event.remove();
     }
-
+//console.log('isEventHover', isEventHover)
     const handleEventMouseEnter = (clickInfo) => {
-        if (!isEventHover) { 
-        setTimeout(function(){
-            setPopupCard(clickInfo.event)     
-            setEventHover(false)
-        }, 250); 
-        setEventHover(true)        
-        }
+        // if (!isEventHover) {
+        //     setTimeout(function (ev) {
+        //         return function(){
+        //             console.log('1-----isEventHover--------', ev)
+        //             if (ev) {
+        //                 console.log('2-----isEventHover--------', ev)
+                        setPopupCard(clickInfo.event)
+        //                setEventHover(false)
+        //             }
+        //         }
+        //    }(isEventHover), 300);
+        //     setEventHover(true)
+//        }
         //clickInfo.event.remove()
         //setPopupCard(clickInfo.event)
     }
     const handleEventMouseLeave = (clickInfo) => {
+//        console.log('---------------1')
         //clickInfo.event.remove()
-        setEventHover(false)
+//        setEventHover(false)
         setPopupCard(null)
     }
     const handleEventClick = (clickInfo) => {
         if (isEventClicked) {
             setPopupCard(null)
-            alert(
-                'Clicked ' + clickInfo.event.title + '.\n' +
-                'Will open ' + clickInfo.event.url + ' in a new tab'
-              );
+            handleFormOpen()
         } else {
             setEventClicked(true)
             setPopupCard(null)
-//            setPopupCard(clickInfo.event)            
+            //            setPopupCard(clickInfo.event)            
         }
 
-        setTimeout(function(){
+        setTimeout(function () {
             setEventClicked(false)
-        }, 250);        
+        }, 250);
 
 
     }
     const handleEvents = (events) => {
-     //   console.log('---------------', events)
-//        setCurrentEvents(events)
+        //   console.log('---------------', events)
+        //        setCurrentEvents(events)
     }
     return (
         <Container ref={calendarContainer} open={open} >
             <FullCalendar
-                timeZone= {'UTC'}
-//                businessHours={{daysOfWeek: [ 1, 2, 3, 4,5 ]}}                   //Рабочие часы
+                timeZone={'UTC'}
+                //                businessHours={{daysOfWeek: [ 1, 2, 3, 4,5 ]}}                   //Рабочие часы
                 locale={ruLocale}                                                //Язык
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 headerToolbar={{
@@ -278,12 +284,12 @@ const MainCalendar = (props) => {
                     center: 'title',
                     right: 'prev,today,next'
                 }}
-                titleFormat= {{ year: 'numeric', month: 'long'}}                //Формат
+                titleFormat={{ year: 'numeric', month: 'long' }}                //Формат
                 dayHeaders={true}
-                dayHeaderFormat= {{  weekday: 'long' }}
+                dayHeaderFormat={{ weekday: 'long' }}
                 initialView='dayGridMonth'
-//                datesSet={(args) => console.log("###datesSet:", args)}
-                height = '750px'
+                //                datesSet={(args) => console.log("###datesSet:", args)}
+                height='750px'
                 editable={true}
                 selectable={true}
                 selectMirror={true}
@@ -291,16 +297,22 @@ const MainCalendar = (props) => {
                 weekends={weekendsVisible}
                 events={events} // alternatively, use the `events` setting to fetch from a feed
                 select={handleDateSelect}
-                eventContent={renderEventContent} // custom render function
+                eventContent={(eventInfo)=>CustomEvent({
+                    name: eventInfo.event.title,
+                    title: eventInfo.event.extendedProps.title,
+                    telephoneNumber: eventInfo.event.extendedProps.telephoneNumber,
+                    mobile: eventInfo.event.extendedProps.mobile,
+                    notfounded: eventInfo.event.extendedProps.notfound
+                })} // custom render function
                 dayCellContent={renderCellContent}
                 eventClick={handleEventClick}
                 eventCl
                 eventsSet={handleEvents} // called after events are initialized/added/changed/removed
-                eventColor= 'rgba(0,0,0,0.05)'
-                eventTextColor = '#444'
+                eventColor='rgba(0,0,0,0.05)'
+                eventTextColor='#444'
                 droppable={true}
-                eventAdd={function(addInfo ) {
-                    console.log('eventAdd', addInfo )
+                eventAdd={function (addInfo) {
+                    console.log('eventAdd', addInfo)
                 }}
                 eventChange={handleEventUpdate}
                 eventReceive={handleEventReceive}
@@ -308,11 +320,11 @@ const MainCalendar = (props) => {
                 eventMouseEnter={handleEventMouseEnter}
                 eventMouseLeave={handleEventMouseLeave}
 
-                /* you can update a remote database when these fire:
-                eventAdd={function(){}}
-                eventChange={function(){}}
-                eventRemove={function(){}}
-                */
+            /* you can update a remote database when these fire:
+            eventAdd={function(){}}
+            eventChange={function(){}}
+            eventRemove={function(){}}
+            */
             />
         </Container>
     );
