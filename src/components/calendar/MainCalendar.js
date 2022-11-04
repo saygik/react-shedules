@@ -13,7 +13,7 @@ import { styled } from '@mui/material/styles';
 import { drawerWidth } from '../../utils'
 import api from "../../api";
 import './calendar.css';
-
+import { useData } from '../../context/data'
 
 function inElement(point, element) {
     const rect = element.getBoundingClientRect();
@@ -68,118 +68,29 @@ const Container = styled(Box, {
 
 
 const MainCalendar = (props) => {
-    const { users, tasks, id, setPopupCard, open, handleFormOpen } = props
-
+    const { id, open, handleFormOpen } = props
+    const { deleteTask, updateTask, addTask, selectors } = useData()
+    const { tasks } =selectors
     const calendarContainer = useRef(null);
     const [weekendsVisible] = useState(true)
-    const [events, setevents] = useState([])
-    const [isEventClicked, setEventClicked] = useState(false)
-    const [isEventHover, setEventHover] = useState(false)
 
-    // const events= useMemo(()=>{
-    //     if (!tasks) return
-    //     const newtasks=tasks.map(task=>{
-    //         const newtask={...task,  extendedProps:{id:task.upn}}
-    //         delete newtask.upn
-    //         delete newtask.idc
-    //         return newtask
-    //     })
-    //     if (!users) return newtasks
-    //     const newEvents=newtasks.map(ev=>{
-    //         const ADUserFinded=users.find(user=>(user.userPrincipalName===ev.extendedProps.id))
-    //         let newEvent={...ev}
-    //         if (!ADUserFinded ) {
-    //             newEvent.extendedProps.notfound=true
-    //             return newEvent
-    //         }
-    //         newEvent.title=ADUserFinded.displayName
-    //         newEvent.extendedProps.telephoneNumber=ADUserFinded.telephoneNumber
-    //         newEvent.extendedProps.title=ADUserFinded.title
-    //         newEvent.extendedProps.mobile=ADUserFinded.mobile
-    //         newEvent.extendedProps.notfound=false
-    //         return newEvent
-    //     })
-    //     return newEvents
-    // }, [tasks, users])
-    const getExtendedPropertys = useCallback((ev) => {
-        const ADUserFinded = users.find(user => (user.userPrincipalName === ev.extendedProps.id))
-        let newEvent = { ...ev }
-        if (!ADUserFinded) {
-            newEvent.extendedProps.notfound = true
-            return newEvent
-        }
-        newEvent.title = ADUserFinded.displayName
-        newEvent.extendedProps.telephoneNumber = ADUserFinded.telephoneNumber
-        newEvent.extendedProps.title = ADUserFinded.title
-        newEvent.extendedProps.mobile = ADUserFinded.mobile
-        newEvent.extendedProps.notfound = false
-        return newEvent
-    }, [users]);
-    useEffect(() => {
-        if (!tasks) return
-        const newtasks = tasks.map(task => {
-            const newtask = { ...task, extendedProps: { id: task.upn } }
-            delete newtask.upn
-            delete newtask.idc
-            return newtask
-        })
-        if (!users) return setevents(newtasks)
-        const newEvents = newtasks.map(ev => {
-            return getExtendedPropertys(ev)
-        })
-        setevents(newEvents)
-    }, [tasks, users])
-
-    const DeleteEventById = (id) => {
-        setevents(
-            events.filter(evt => evt.id != id)
-        )
-    }
-    const UpdateEventDate = (oldEvent) => {
-        setevents(
-            events.map(evt => evt.id === oldEvent.id ? { ...evt, allDay: true, start: oldEvent.start, end: oldEvent.end } : evt)
-        )
-    }
-    const AddEvent = (event) => {
-        setevents(
-            [...events, getExtendedPropertys(event)]
-        )
-    }
     const handleEventReceive = async (arg) => {
-        try {
-            const result = await api.addTask(id, arg.event.title, arg.event.extendedProps.id, arg.event.startStr, "")
-
-            if (result.data.id !== undefined) {
-
-                AddEvent({ title: arg.event.title, allDay: true, start: arg.event.start, extendedProps: { id: arg.event.extendedProps.id }, id: result.data.id })
-                arg.event.remove()
-            }
-            toast.success('Событие добавлено!',);
-        } catch (e) {
-            console.log(e)
-            toast.error('Событие не добавлено!',);
-            arg.event.remove()
-
+        const newTask={
+            id: id, 
+            allDay:arg.event.allDay, 
+            title: arg.event.title, 
+            start: arg.event.startStr,
+            startDate: arg.event._instance.range.start,
+            endDate: arg.event._instance.range.end,
+            extendedProps: { id: arg.event.extendedProps.id },
         }
-
-        //        newEvent.id=createEventId()
-        //        setCurrentEvents([...currentEvents,newEvent])
+       addTask(newTask)
+       arg.event.remove()
     }
-    const handleEventUpdate = async ({ event, oldEvent }) => {
-        try {
-            const result = await api.updateTask(event.id, event.startStr, !event.end ? "" : event.endStr)
-            if (result.status === 200) {
-                UpdateEventDate(event)
-                toast.info('Событие изменено!');
-            }
-        } catch (e) {
-            console.log('err', e)
-            UpdateEventDate(oldEvent)
-            toast.error('Событие не изменено!');
-        }
-
-    }
+    const handleEventUpdate = async ({ event, oldEvent }) => updateTask(event)
     const handleDateSelect = (selectInfo) => {
+        handleFormOpen()
+        return
         let title = prompt('Please enter a new title for your event')
         let calendarApi = selectInfo.view.calendar
 
@@ -200,87 +111,23 @@ const MainCalendar = (props) => {
 
         return <DayBox weekend={weekend}>{eventInfo.dayNumberText}</DayBox>
     }
-    const renderEventContent = (eventInfo) => {
-        return (
-            <UserCalendarCard
-                name={eventInfo.event.title}
-                title={eventInfo.event.extendedProps.title}
-                telephoneNumber={eventInfo.event.extendedProps.telephoneNumber}
-                mobile={eventInfo.event.extendedProps.mobile}
-                notfounded={eventInfo.event.extendedProps.notfound}
-            />
 
-        )
-    }
     const handleEventDragStop = async ({ event, jsEvent }) => {
         if (!calendarContainer.current) return;
         if (inElement({ x: jsEvent.pageX, y: jsEvent.pageY }, calendarContainer.current)) return;
-        try {
-            const result = await api.deleteTask(event.id)
-            if (result.status === 200) {
-                DeleteEventById(event.id)
-                toast.info('Событие удалено!',);
-            }
-        } catch (e) {
-            console.log('err', e)
-            toast.error('Событие не удалено!');
-        }
+        deleteTask(event.id)
 
         //        event.remove();
-    }
-//console.log('isEventHover', isEventHover)
-    const handleEventMouseEnter = (clickInfo) => {
-        // if (!isEventHover) {
-        //     setTimeout(function (ev) {
-        //         return function(){
-        //             console.log('1-----isEventHover--------', ev)
-        //             if (ev) {
-        //                 console.log('2-----isEventHover--------', ev)
-                        setPopupCard(clickInfo.event)
-        //                setEventHover(false)
-        //             }
-        //         }
-        //    }(isEventHover), 300);
-        //     setEventHover(true)
-//        }
-        //clickInfo.event.remove()
-        //setPopupCard(clickInfo.event)
-    }
-    const handleEventMouseLeave = (clickInfo) => {
-//        console.log('---------------1')
-        //clickInfo.event.remove()
-//        setEventHover(false)
-        setPopupCard(null)
-    }
-    const handleEventClick = (clickInfo) => {
-        if (isEventClicked) {
-            setPopupCard(null)
-            handleFormOpen()
-        } else {
-            setEventClicked(true)
-            setPopupCard(null)
-            //            setPopupCard(clickInfo.event)            
-        }
-
-        setTimeout(function () {
-            setEventClicked(false)
-        }, 250);
-
-
-    }
-    const handleEvents = (events) => {
-        //   console.log('---------------', events)
-        //        setCurrentEvents(events)
     }
     return (
         <Container ref={calendarContainer} open={open} >
             <FullCalendar
-                timeZone={'UTC'}
+                timeZone={'local'}
                 //                businessHours={{daysOfWeek: [ 1, 2, 3, 4,5 ]}}                   //Рабочие часы
                 locale={ruLocale}                                                //Язык
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 headerToolbar={{
-                    left: '',
+                    left: 'dayGridMonth,timeGridWeek,timeGridDay',
                     center: 'title',
                     right: 'prev,today,next'
                 }}
@@ -295,30 +142,24 @@ const MainCalendar = (props) => {
                 selectMirror={true}
                 dayMaxEvents={true}
                 weekends={weekendsVisible}
-                events={events} // alternatively, use the `events` setting to fetch from a feed
+                events={tasks} // alternatively, use the `events` setting to fetch from a feed
                 select={handleDateSelect}
-                eventContent={(eventInfo)=>CustomEvent({
-                    name: eventInfo.event.title,
-                    title: eventInfo.event.extendedProps.title,
-                    telephoneNumber: eventInfo.event.extendedProps.telephoneNumber,
-                    mobile: eventInfo.event.extendedProps.mobile,
-                    notfounded: eventInfo.event.extendedProps.notfound
-                })} // custom render function
+                eventContent={(eventInfo)=><CustomEvent event={eventInfo.event} />} // custom render function
                 dayCellContent={renderCellContent}
-                eventClick={handleEventClick}
+//                eventClick={handleEventClick}
                 eventCl
-                eventsSet={handleEvents} // called after events are initialized/added/changed/removed
+//                eventsSet={handleEvents} // called after events are initialized/added/changed/removed
                 eventColor='rgba(0,0,0,0.05)'
                 eventTextColor='#444'
                 droppable={true}
-                eventAdd={function (addInfo) {
-                    console.log('eventAdd', addInfo)
-                }}
+                // eventAdd={function (addInfo) {
+                //     console.log('eventAdd', addInfo)
+                // }}
                 eventChange={handleEventUpdate}
                 eventReceive={handleEventReceive}
                 eventDragStop={handleEventDragStop}
-                eventMouseEnter={handleEventMouseEnter}
-                eventMouseLeave={handleEventMouseLeave}
+                // eventMouseEnter={handleEventMouseEnter}
+                // eventMouseLeave={handleEventMouseLeave}
 
             /* you can update a remote database when these fire:
             eventAdd={function(){}}

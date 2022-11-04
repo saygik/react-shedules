@@ -70,7 +70,7 @@ const Auth0Provider = (opts) => {
   },[]);
 
   useEffect(() => {
-    console.log('-------state.token----------', state.token);
+
     client.token=state.token
     localStorage.setItem('REACT_APPS_USER_TOKEN', state.token);
     !!state.token && onTokenChange()

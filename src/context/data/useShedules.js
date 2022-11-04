@@ -47,6 +47,9 @@ export default function useShedules() {
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
+
+
+    
     const getScheduleUsers = useCallback(async (schedule)=>{
         try {
             const result = await api.getAdUserInGroup(schedule.domain || "", schedule.usergroup || "")
@@ -102,5 +105,6 @@ export default function useShedules() {
         sortedUsers,
         getScheduleTasks,
         getSchedule
+
     };
 }
