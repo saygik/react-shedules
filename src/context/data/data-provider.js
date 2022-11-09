@@ -2,7 +2,7 @@ import { useReducer, useContext, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import api from '../../api';
 import { reducer, initialState } from './reducer';
-import DataContext from './context';
+import DataContext from './data-context';
 import { actions } from './action-types';
 import { createEndDate, createEndDateNew, createStringDate } from './utils';
 
@@ -19,6 +19,69 @@ export const DataProvider = ({ children }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     );
+
+    useEffect(() => {
+        if (!state.schedule) return
+        if (state.schedule.tip==="1"){
+            getScheduleUsers(state.schedule)
+            getScheduleTasks(state.schedule.id)
+        }
+    }, [state.schedule]);// eslint-disable-line react-hooks/exhaustive-deps
+
+
+
+
+    const getScheduleTasks = useCallback(async (id)=>{
+        dispatch({ type: actions.SCHEDULE_TASKS_REQUEST })
+        try {
+            const result = await api.getScheduleTasks(id)
+            if (result && result.status===200) {
+                dispatch({ type: actions.SCHEDULE_TASKS_SUCCESS, payload: result.data.data })
+            } else {
+                dispatch({ type: actions.SCHEDULE_TASKS_ERROR })
+                toast.error('Невозмозно получить задания  расписания с сервера:');            
+            }
+        } catch (err) {
+            dispatch({ type: actions.SCHEDULE_TASKS_ERROR })
+            toast.error('Невозмозно получить задания  расписания с сервера:'+ err.message,{autoClose:5000} );            
+
+        }
+    }, []);// eslint-disable-line react-hooks/exhaustive-deps
+
+    const getSchedule = useCallback(async (id)=>{
+        dispatch({ type: actions.SCHEDULE_REQUEST})
+        try {
+            const result = await api.getSchedule(id)
+            if (result && result.status===200) {
+                dispatch({ type: actions.SCHEDULE_SUCCESS, payload: result.data.data })
+            } else {
+                toast.error('Невозмозно получить расписание с сервера',{autoClose:5000});            
+                dispatch({ type: actions.SCHEDULE_ERROR })
+            }
+        } catch (err) {
+            toast.error('Невозмозно получить расписание с сервера:'+ err.message,{autoClose:5000} );
+            dispatch({ type: actions.SCHEDULE_ERROR })
+        }
+    }, []);// eslint-disable-line react-hooks/exhaustive-deps
+
+
+
+    
+    const getScheduleUsers = useCallback(async (schedule)=>{
+        try {
+            const result = await api.getAdUserInGroup(schedule.domain || "", schedule.usergroup || "")
+            if (result && result.status===200) {
+                dispatch({ type: actions.SCHEDULE_USERS_SUCCESS, payload: result.data.data })
+            } else {
+                dispatch({ type: actions.SCHEDULE_USERS_ERROR })
+                toast.error('Невозмозно получить пользователей расписания с сервера:');            
+            }
+        } catch (err) {
+            dispatch({ type: actions.SCHEDULE_USERS_ERROR })
+            toast.error('Невозмозно получить пользователей расписания с сервера:'+ err.message,{autoClose:5000} );
+
+        }
+    }, []);// eslint-disable-line react-hooks/exhaustive-deps    
 
     const getExtendedPropertys = useCallback((ev) => {
         if (!ev) return ev
@@ -96,11 +159,29 @@ export const DataProvider = ({ children }) => {
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
 
-    //* **************************  Selectors  *********************//
 
+    //* **************************  Selectors  *********************//
+    const users= useMemo(() => state.users, [state.users]);
+    const schedule= useMemo(() => state.schedule, [state.schedule]);
     const selectors = {};
+    selectors.loading = useMemo(() => state.loading, [state.loading]); 
+    selectors.loaded = useMemo(() => state.loaded, [state.loaded]); 
+    selectors.scheduleName = useMemo(() => schedule && (schedule.name || ""), [schedule]); 
     selectors.searchValue = useMemo(() => state.searchValue, [state.searchValue]);
-    selectors.tasks = useMemo(() => state.tasks.map(ev => getExtendedPropertys(ev)), [state.tasks, state.users])
+    selectors.tasks = useMemo(() => state.tasks.map(ev => getExtendedPropertys(ev)), [state.tasks, state.users]);// eslint-disable-line react-hooks/exhaustive-deps
+    selectors.sortedUsers=useMemo(()=>{
+        return users.sort((a,b) => {
+            const fa = a.displayName.toLowerCase();
+            const fb = b.displayName.toLowerCase();
+            if (fa < fb) {
+                return -1;
+            }
+            if (fa > fb) {
+                return 1;
+            }
+            return 0;
+        })
+    },[users])
     //    console.log('state.tasks', state.tasks)
 
     //* *******************************************************************************************************//
@@ -109,6 +190,7 @@ export const DataProvider = ({ children }) => {
         selectors,
         deleteTask,
         updateTask,
+        getSchedule,
         addTask,
         dispatch
     };

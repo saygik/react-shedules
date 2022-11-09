@@ -34,10 +34,6 @@ const Auth0Provider = (opts) => {
     getCurrentLocation,
     ...clientOpts
   } = opts;
-  const {
-    apiBase,
-    redirectUri
-  } = clientOpts;
   const [client] = useState(
     () => new Auth0Client(clientOpts)
   );
@@ -67,29 +63,32 @@ const Auth0Provider = (opts) => {
   const loginWithRedirect = useCallback(() =>{
     const location= getCurrentLocation()
     client.loginWithRedirect(location)
-  },[]);
+  },[]);// eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-
+      if (didInitialise.current) {
+        return;
+      }
     client.token=state.token
     localStorage.setItem('REACT_APPS_USER_TOKEN', state.token);
     !!state.token && onTokenChange()
-  }, [state.token])
+  }, [state.token]);// eslint-disable-line react-hooks/exhaustive-deps
 
   //console.log('client.token',client.token)
   const logout = useCallback(() =>{
       client.logout();
       dispatch({ type: 'LOGOUT' })},
-    []
-  );
+    []);// eslint-disable-line react-hooks/exhaustive-deps
 
   const onTokenChange = useCallback(
     async () => {
       dispatch({ type: 'LOGIN_STARTED' });
       try {
+        console.log('---------------------------');
         const resultUser = await client.getCurrentUserID();
+        console.log('resultUser',resultUser);
         if (resultUser && resultUser.status === 200) {
-          const user =resultUser.data.user && resultUser.data.user || null
+          const user =resultUser.data.user && (resultUser.data.user || null)
          console.log('user',user);
           dispatch({ type: 'LOGIN_COMPLETE', payload: user  })
         } else {
@@ -103,10 +102,11 @@ const Auth0Provider = (opts) => {
         return;
       }
     }
-    ,[])
+    ,[]);// eslint-disable-line react-hooks/exhaustive-deps
 
   const onRedirectCallback = useCallback(
     async (code, location) => {
+
       dispatch({ type: 'GET_ACCESS_TOKEN_REQUEST' });
       try {
         let token='';
@@ -138,8 +138,7 @@ const Auth0Provider = (opts) => {
       }
 //      dispatch({ type: 'LOGIN_COMPLETE', payload: 'vv' });
     },
-    []
-  );
+    []);// eslint-disable-line react-hooks/exhaustive-deps
 
   const contextValue = useMemo(() => {
     return {

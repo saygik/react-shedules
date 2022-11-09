@@ -18,7 +18,7 @@ const CalendarEvent = styled('div') (({ theme}) => ({
 }));
 
 export default function UserCalendarCard(props) {
-    const {name, title, telephoneNumber, mobile, notfounded}=props
+    const {name, title, notfounded}=props
     return (
         <CalendarEvent>
             <Box sx={{

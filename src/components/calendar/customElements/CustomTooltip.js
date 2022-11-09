@@ -1,22 +1,11 @@
 import React from 'react'
 import Popover from '@mui/material/Popover'
-// import moment from 'moment'
 import dayjs from 'dayjs';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined'
-import Person from '@mui/icons-material/Person'
-
-import Grid from "@mui/material/Grid"
-import ScheduleIcon from '@mui/icons-material/Schedule';
-import CheckIcon from '@mui/icons-material/Check';
-import ClearIcon from '@mui/icons-material/Clear';
-import PersonPinIcon from '@mui/icons-material/PersonPin';
-import LinkIcon from '@mui/icons-material/Link';
-import Link from '@mui/icons-material/Link';
 import { lightBlue, blueGrey } from '@mui/material/colors';
 import List from '@mui/material/List';
-import { alpha, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -39,7 +28,7 @@ const ButtonBox = styled(Box)(({ theme }) => ({
 
 const CustomTooltip = (props) => {
    const { deleteTask } = useData()
-    const { open, event, parentId, handleClose, handleUpdate, anchorEl } = props
+    const { open, event, parentId, handleClose, anchorEl } = props
 
     const eventTime = useMemo(() => {
     if (!event) return ""

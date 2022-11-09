@@ -5,7 +5,7 @@ import MainCalendar from "../components/calendar/MainCalendar";
 import {  useEffect } from "react";
 import { useParams } from "react-router-dom"
 import { isInt } from '../utils'
-import { useShedules } from '../context/data/';
+import { useData } from '../context/data/';
 import NotFound from './NotFound';
 import Loader from '../components/Loader'
 import Bar from '../components/menu/Bar'
@@ -14,7 +14,8 @@ import EventForm from '../components/forms/EventForm'
 
 function CallBoards() {
     const { id } = useParams()
-    const { getSchedule, tasks, users, sortedUsers, loading, loaded, name, login } = useShedules()
+    const {  selectors: {sortedUsers, scheduleName, loading, loaded}, getSchedule } = useData()
+
     const [openForm, setOpenForm] = React.useState(false);
     const handleFormOpen = () => {
         setOpenForm(true);
@@ -29,7 +30,7 @@ function CallBoards() {
 
     useEffect(() => {
         if (isInt(id)) getSchedule(id)
-    }, [])
+    }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     if (!isInt(id)) return <NotFound />
 
@@ -40,13 +41,11 @@ function CallBoards() {
     return (
         <Box sx={{ pt: 7 }}>
             <CssBaseline />
-            <Bar open={open} setOpen={setOpen} login={login} />
-            <Sidebar open={open} setOpen={setOpen} users={sortedUsers} name={name} />
+            <Bar open={open} setOpen={setOpen} />
+            <Sidebar open={open} setOpen={setOpen} users={sortedUsers} name={scheduleName} />
             <main>
                     <MainCalendar
                         open={open}
-                        users={users}
-                        tasks={tasks}
                         id={id}
                         type="trigger"
                         handleFormOpen={handleFormOpen} 

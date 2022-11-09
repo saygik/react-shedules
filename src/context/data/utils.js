@@ -25,6 +25,6 @@ export const createEndDateNew = (startStr, startDate, endDate, allDay) => {
     if (allDay) {
         return ""
     }
-    return start.add(diff,'h') .format('YYYY-MM-DDTHH:mm:ssZ')
+    return start.add(diff,'h').format('YYYY-MM-DDTHH:mm:ssZ')
 }
 

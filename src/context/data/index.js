@@ -1,7 +1,5 @@
 // eslint-disable-next-line import/no-cycle
-import { DataProvider, useData } from './store';
-import DataContext from './context';
-import useShedules from './useShedules';
+import { DataProvider, useData } from './data-provider';
+import DataContext from './data-context';
 
-
-export { DataProvider, DataContext, useData, useShedules };
+export { DataProvider, DataContext, useData };

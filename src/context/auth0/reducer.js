@@ -49,5 +49,7 @@ export const reducer = (state, action) => {
         token:'',
         user: undefined,
       };
+     default:
+        return { ...state }
   }
 };

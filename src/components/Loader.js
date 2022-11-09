@@ -10,7 +10,7 @@ function Loader () {
         textAlign: 'center',
         minHeight: '100vh',
     }}>
-        <img src={bloader}/>
+        <img alt="loading..." src={bloader}/>
     </Box>  );
 }
 

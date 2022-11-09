@@ -1,17 +1,15 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import Box from '@mui/material/Box';
-import FullCalendar, { formatDate } from '@fullcalendar/react'
+import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import ruLocale from '@fullcalendar/core/locales/ru';
-import UserCalendarCard from './UserCalendarCard'
+
 import CustomEvent from './customElements/CustomEvent'
-import { INITIAL_EVENTS, createEventId } from '../event-utils'
-import { toast } from 'react-toastify';
+//import { createEventId } from '../event-utils'
 import { styled } from '@mui/material/styles';
 import { drawerWidth } from '../../utils'
-import api from "../../api";
 import './calendar.css';
 import { useData } from '../../context/data'
 
@@ -88,22 +86,22 @@ const MainCalendar = (props) => {
        arg.event.remove()
     }
     const handleEventUpdate = async ({ event, oldEvent }) => updateTask(event)
+
     const handleDateSelect = (selectInfo) => {
+        let calendarApi = selectInfo.view.calendar
+        calendarApi.unselect() // clear date selection
         handleFormOpen()
         return
-        let title = prompt('Please enter a new title for your event')
-        let calendarApi = selectInfo.view.calendar
-
-        calendarApi.unselect() // clear date selection
-        if (title) {
-            calendarApi.addEvent({
-                id: createEventId(),
-                title,
-                start: selectInfo.startStr,
-                end: selectInfo.endStr,
-                allDay: selectInfo.allDay
-            })
-        }
+        // let title = prompt('Please enter a new title for your event')
+        // if (title) {
+        //     calendarApi.addEvent({
+        //         id: createEventId(),
+        //         title,
+        //         start: selectInfo.startStr,
+        //         end: selectInfo.endStr,
+        //         allDay: selectInfo.allDay
+        //     })
+        // }
     }
     const renderCellContent = (eventInfo) => {
         const weekday = eventInfo.date.getDay()

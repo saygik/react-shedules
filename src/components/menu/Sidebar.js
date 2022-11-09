@@ -78,7 +78,7 @@ function Sidebar({ open, setOpen, users }) {
 }
 
 export default function SidebarContainer(props) {
-    const { open, setOpen, users, name } = props
+    const { open, setOpen, users } = props
     const [draggableInitialized, setDraggableInitialized] = useState(false)
     const mapUsers = useMemo(() => {
         if (!users) return
@@ -109,22 +109,8 @@ export default function SidebarContainer(props) {
                 }
             })
         }
-    }, [users, draggableInitialized])
+    }, [users, draggableInitialized]);// eslint-disable-line react-hooks/exhaustive-deps
     return (
         <Sidebar open={open} setOpen={setOpen} users={users} />
-    )
-}
-
-function UserMiniCard(props) {
-    const { user } = props
-    return (
-        <div id={user.userPrincipalName} className="draggableEvent" style={{ cursor: 'pointer' }}>
-            <span >
-                {user.title}
-            </span>
-            <div >
-                {user.cn}
-            </div>
-        </div>
     )
 }

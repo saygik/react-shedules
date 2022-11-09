@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField';
 import { useState } from 'react';
 
 export default function FormDialogContext({ open, handleClose }) {
-    const [title,setTitle] = useState('')
+    const [title] = useState('')
     return (
         <Grid container spacing={1}  >
             <Grid item xs={12}>

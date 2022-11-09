@@ -1,7 +1,6 @@
-import React, { useState } from "react"
+import React from "react"
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import EventNoteOutlinedIcon from '@mui/icons-material/EventNoteOutlined'
 import Person from '@mui/icons-material/Person'
 import { lightBlue } from '@mui/material/colors';
 import CustomTooltip from './CustomTooltip'
