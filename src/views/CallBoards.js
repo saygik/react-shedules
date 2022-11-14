@@ -14,18 +14,9 @@ import EventForm from '../components/forms/EventForm'
 
 function CallBoards() {
     const { id } = useParams()
-    const {  selectors: {sortedUsers, scheduleName, loading, loaded}, getSchedule } = useData()
+    const {  selectors: {sortedUsers, scheduleName, loading, loaded, editTaskOpen}, getSchedule, deselectTask } = useData()
 
-    const [openForm, setOpenForm] = React.useState(false);
-    const handleFormOpen = () => {
-        setOpenForm(true);
-    };
 
-    const handleFormClose = () => {
-        setOpenForm(false);
-    };
-
-    //    const [isAdmin, setAdmin]=useState(true)
     const [open, setOpen] = React.useState(false);
 
     useEffect(() => {
@@ -48,10 +39,9 @@ function CallBoards() {
                         open={open}
                         id={id}
                         type="trigger"
-                        handleFormOpen={handleFormOpen} 
                         />
             </main>
-            <EventForm open={openForm} handleClose={handleFormClose} />
+            <EventForm open={editTaskOpen} handleClose={deselectTask} />
         </Box>
     );
 }

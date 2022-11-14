@@ -12,6 +12,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { useMemo } from 'react';
 import { useData } from '../../../context/data'
+import { DateToHumanString } from '../../../context/data/utils'
 
 const StyledButton = styled(Button)(({ theme }) => ({
     fontSize: '0.75rem',
@@ -27,13 +28,14 @@ const ButtonBox = styled(Box)(({ theme }) => ({
 
 
 const CustomTooltip = (props) => {
-   const { deleteTask } = useData()
+   const { deleteTask, selectTask } = useData()
     const { open, event, parentId, handleClose, anchorEl } = props
+//    const {  selectors: {sortedUsers, scheduleName, loading, loaded, editTaskOpen}, getSchedule, deselectTask } = useData()
 
     const eventTime = useMemo(() => {
     if (!event) return ""
-        const dateStart = event.startStr && dayjs(event.startStr).format(event.allDay ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm')
-        const dateEnd = event.endStr && dayjs(event.endStr).format(event.allDay ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm')
+        const dateStart = DateToHumanString(event.startStr, event.allDay)
+        const dateEnd = DateToHumanString(event.endStr, event.allDay, true)
 
         return !dateEnd ? dateStart : dateStart + "-" + dateEnd
     }, [event])
@@ -69,12 +71,12 @@ const CustomTooltip = (props) => {
                 marginTop: '0'
             }}>
                 <List>
-                    <ListItem disablePadding className='draggableEvent'>
+                    <ListItem disablePadding >
                         <ListItemText
                             primary={event.title} primaryTypographyProps={{ sx: { fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }}
                             secondary={event.extendedProps.title} secondaryTypographyProps={{ sx: { color: blueGrey[400], fontSize: '0.8rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }} />
                     </ListItem>
-                    <ListItem disablePadding className='draggableEvent'>
+                    <ListItem disablePadding >
                         <ListItemIcon sx={{ minWidth: 30 }}><AccessTimeIcon sx={{ width: 20 }} /> </ListItemIcon>
                         <ListItemText
                             secondary={eventTime}
@@ -87,7 +89,8 @@ const CustomTooltip = (props) => {
                          variant="text">Удалить</StyledButton>
                     </ButtonBox>
                     <ButtonBox>
-                        <StyledButton variant="text">Редактировать</StyledButton>
+                        <StyledButton onClick={() => selectTask({id:event.id})} 
+                         variant="text">Редактировать</StyledButton>
                     </ButtonBox>
                 </Box>
             </Box>

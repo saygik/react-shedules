@@ -22,7 +22,7 @@ export const DataProvider = ({ children }) => {
 
     useEffect(() => {
         if (!state.schedule) return
-        if (state.schedule.tip==="1"){
+        if (state.schedule.tip === "1") {
             getScheduleUsers(state.schedule)
             getScheduleTasks(state.schedule.id)
         }
@@ -31,59 +31,59 @@ export const DataProvider = ({ children }) => {
 
 
 
-    const getScheduleTasks = useCallback(async (id)=>{
+    const getScheduleTasks = useCallback(async (id) => {
         dispatch({ type: actions.SCHEDULE_TASKS_REQUEST })
         try {
             const result = await api.getScheduleTasks(id)
-            if (result && result.status===200) {
+            if (result && result.status === 200) {
                 dispatch({ type: actions.SCHEDULE_TASKS_SUCCESS, payload: result.data.data })
             } else {
                 dispatch({ type: actions.SCHEDULE_TASKS_ERROR })
-                toast.error('Невозмозно получить задания  расписания с сервера:');            
+                toast.error('Невозмозно получить задания  расписания с сервера:');
             }
         } catch (err) {
             dispatch({ type: actions.SCHEDULE_TASKS_ERROR })
-            toast.error('Невозмозно получить задания  расписания с сервера:'+ err.message,{autoClose:5000} );            
+            toast.error('Невозмозно получить задания  расписания с сервера:' + err.message, { autoClose: 5000 });
 
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
-    const getSchedule = useCallback(async (id)=>{
-        dispatch({ type: actions.SCHEDULE_REQUEST})
+    const getSchedule = useCallback(async (id) => {
+        dispatch({ type: actions.SCHEDULE_REQUEST })
         try {
             const result = await api.getSchedule(id)
-            if (result && result.status===200) {
+            if (result && result.status === 200) {
                 dispatch({ type: actions.SCHEDULE_SUCCESS, payload: result.data.data })
             } else {
-                toast.error('Невозмозно получить расписание с сервера',{autoClose:5000});            
+                toast.error('Невозмозно получить расписание с сервера', { autoClose: 5000 });
                 dispatch({ type: actions.SCHEDULE_ERROR })
             }
         } catch (err) {
-            toast.error('Невозмозно получить расписание с сервера:'+ err.message,{autoClose:5000} );
+            toast.error('Невозмозно получить расписание с сервера:' + err.message, { autoClose: 5000 });
             dispatch({ type: actions.SCHEDULE_ERROR })
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
 
 
-    
-    const getScheduleUsers = useCallback(async (schedule)=>{
+
+    const getScheduleUsers = useCallback(async (schedule) => {
         try {
             const result = await api.getAdUserInGroup(schedule.domain || "", schedule.usergroup || "")
-            if (result && result.status===200) {
+            if (result && result.status === 200) {
                 dispatch({ type: actions.SCHEDULE_USERS_SUCCESS, payload: result.data.data })
             } else {
                 dispatch({ type: actions.SCHEDULE_USERS_ERROR })
-                toast.error('Невозмозно получить пользователей расписания с сервера:');            
+                toast.error('Невозмозно получить пользователей расписания с сервера:');
             }
         } catch (err) {
             dispatch({ type: actions.SCHEDULE_USERS_ERROR })
-            toast.error('Невозмозно получить пользователей расписания с сервера:'+ err.message,{autoClose:5000} );
+            toast.error('Невозмозно получить пользователей расписания с сервера:' + err.message, { autoClose: 5000 });
 
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps    
 
-    const getExtendedPropertys = useCallback((ev) => {
+    const getExtendedPropertys = (ev) => {
         if (!ev) return ev
         let newEvent = { ...ev, allDay: ev.all_day === 'true', extendedProps: { id: ev.upn, comment: ev.comment } }
         delete newEvent.upn
@@ -102,7 +102,7 @@ export const DataProvider = ({ children }) => {
         newEvent.extendedProps.mobile = ADUserFinded.mobile
         newEvent.extendedProps.notfound = false
         return newEvent
-    }, [state.users]);
+    };
 
     const deleteTask = useCallback(async (id) => {
         try {
@@ -122,9 +122,9 @@ export const DataProvider = ({ children }) => {
     const updateTask = useCallback(async (event) => {
 
         const dateStartString = createStringDate(event.start) //dayjs(event.start).format(!event.allDay ? 'DD.MM.YYYY' : 'YYYY-MM-DDTHH:mm:ssZ')
-        const dateEndString = !event.end 
-        ? createEndDateNew(event.start, event._instance.range.start, event._instance.range.end, event.allDay) 
-        : createEndDate(event.start, event.end, event.allDay)
+        const dateEndString = !event.end
+            ? createEndDateNew(event.start, event._instance.range.start, event._instance.range.end, event.allDay)
+            : createEndDate(event.start, event.end, event.allDay)
 
         try {
             const result = await api.updateTask(event.id, dateStartString, dateEndString, event.allDay.toString(), event.extendedProps.comment)
@@ -138,7 +138,7 @@ export const DataProvider = ({ children }) => {
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
-    const addTask = useCallback(async (event) => {
+    const addTask = useCallback(async (event, andEdit = false) => {
         const dateStartString = createStringDate(event.start)
         const dateEndString = createEndDateNew(event.start, event.startDate, event.endDate, event.allDay)
         const allDay = event.allDay === undefined ? 'true' : event.allDay
@@ -146,8 +146,11 @@ export const DataProvider = ({ children }) => {
         try {
             const result = await api.addTask(event.id, event.title, event.extendedProps.id, dateStartString, dateEndString, allDay.toString(), '')
             if (result.status === 200) {
-                //                const newTask=getExtendedPropertys(result.data.data)
                 dispatch({ type: actions.SCHEDULE_TASK_ADD, payload: result.data.data })
+
+                andEdit && selectTask({
+                    id: result.data.data.id,
+                })
                 toast.info('Событие добавлено!');
             } else {
                 toast.error('Событие не добавлено!');
@@ -158,19 +161,23 @@ export const DataProvider = ({ children }) => {
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
-
+    const selectTask = useCallback(task => dispatch({ type: actions.SCHEDULE_TASK_SELECT, payload: task }), [])
+    const deselectTask = useCallback(() => dispatch({ type: actions.SCHEDULE_TASK_DESELECT }), [])
 
     //* **************************  Selectors  *********************//
-    const users= useMemo(() => state.users, [state.users]);
-    const schedule= useMemo(() => state.schedule, [state.schedule]);
+    const users = useMemo(() => state.users, [state.users]);
+    const schedule = useMemo(() => state.schedule, [state.schedule]);
+
     const selectors = {};
-    selectors.loading = useMemo(() => state.loading, [state.loading]); 
-    selectors.loaded = useMemo(() => state.loaded, [state.loaded]); 
-    selectors.scheduleName = useMemo(() => schedule && (schedule.name || ""), [schedule]); 
+    selectors.loading = useMemo(() => state.loading, [state.loading]);
+    selectors.loaded = useMemo(() => state.loaded, [state.loaded]);
+    selectors.editTaskOpen = useMemo(() => !!state.selectedEvent, [state.selectedEvent]);
+    selectors.scheduleName = useMemo(() => schedule && (schedule.name || ""), [schedule]);
     selectors.searchValue = useMemo(() => state.searchValue, [state.searchValue]);
     selectors.tasks = useMemo(() => state.tasks.map(ev => getExtendedPropertys(ev)), [state.tasks, state.users]);// eslint-disable-line react-hooks/exhaustive-deps
-    selectors.sortedUsers=useMemo(()=>{
-        return users.sort((a,b) => {
+
+    selectors.sortedUsers = useMemo(() => {
+        return users.sort((a, b) => {
             const fa = a.displayName.toLowerCase();
             const fb = b.displayName.toLowerCase();
             if (fa < fb) {
@@ -181,18 +188,39 @@ export const DataProvider = ({ children }) => {
             }
             return 0;
         })
-    },[users])
+    }, [users])
     //    console.log('state.tasks', state.tasks)
+    const selectedEvent = useMemo(() => {
+        if (!state.selectedEvent) return null
 
+        if (state.selectedEvent.id===0) return  state.selectedEvent
+        const event=selectors.tasks.find(task=>task.id===state.selectedEvent.id.toString())
+        if (!event) return null
+        const selected={
+            id:event.id,
+            allDay:event.allDay,
+            start:event.start,
+            end:event.end,
+            name: event.title,
+            event: event.extendedProps
+        }
+       // console.log('selected', selected)
+        //        const newTask=getExtendedPropertys(result.data.data)
+                return selected
+            }, [state.selectedEvent, selectors.tasks]);
+        
     //* *******************************************************************************************************//
     const value = {
         state,
+        selectedEvent,
         selectors,
         deleteTask,
         updateTask,
         getSchedule,
         addTask,
-        dispatch
+        selectTask,
+        deselectTask
+        //        dispatch
     };
 
     return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

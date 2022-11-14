@@ -7,7 +7,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 import ruLocale from '@fullcalendar/core/locales/ru';
 
 import CustomEvent from './customElements/CustomEvent'
-//import { createEventId } from '../event-utils'
+import { createEventId } from '../event-utils'
 import { styled } from '@mui/material/styles';
 import { drawerWidth } from '../../utils'
 import './calendar.css';
@@ -66,8 +66,8 @@ const Container = styled(Box, {
 
 
 const MainCalendar = (props) => {
-    const { id, open, handleFormOpen } = props
-    const { deleteTask, updateTask, addTask, selectors } = useData()
+    const { id, open } = props
+    const { deleteTask, updateTask, addTask, selectors, selectTask } = useData()
     const { tasks } =selectors
     const calendarContainer = useRef(null);
     const [weekendsVisible] = useState(true)
@@ -82,7 +82,8 @@ const MainCalendar = (props) => {
             endDate: arg.event._instance.range.end,
             extendedProps: { id: arg.event.extendedProps.id },
         }
-       addTask(newTask)
+
+       addTask(newTask, true)
        arg.event.remove()
     }
     const handleEventUpdate = async ({ event, oldEvent }) => updateTask(event)
@@ -90,7 +91,10 @@ const MainCalendar = (props) => {
     const handleDateSelect = (selectInfo) => {
         let calendarApi = selectInfo.view.calendar
         calendarApi.unselect() // clear date selection
-        handleFormOpen()
+        selectTask({
+            id: 0
+        })
+//        handleFormOpen()
         return
         // let title = prompt('Please enter a new title for your event')
         // if (title) {

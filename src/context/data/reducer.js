@@ -8,7 +8,7 @@ export const initialState = {
     loading: false,
     loaded: false,
     domains: [],
-    selectedDomain: -1
+    selectedEvent: null
 };
 
 export const reducer = (state, action) => {
@@ -23,6 +23,10 @@ export const reducer = (state, action) => {
             return { ...state, users: action.payload };
         case actions.SCHEDULE_USERS_ERROR:
             return { ...state, users: [] };
+        case actions.SCHEDULE_TASK_SELECT:
+            return { ...state, selectedEvent: action.payload };
+        case actions.SCHEDULE_TASK_DESELECT:
+            return { ...state, selectedEvent: null };
         case actions.SCHEDULE_TASKS_REQUEST:
             return { ...state, tasks: [] };
         case actions.SCHEDULE_TASKS_SUCCESS:
@@ -32,7 +36,7 @@ export const reducer = (state, action) => {
         case actions.SCHEDULE_TASK_DELETE:
             return { ...state, tasks: state.tasks.filter(task => task.id !== action.payload) };
         case actions.SCHEDULE_TASK_UPDATE:
-            return { ...state, tasks: state.tasks.map(task => task.id === action.payload.id ? { ...task, all_day: action.payload.allDay, start: action.payload.start, end: action.payload.end } : task)};
+            return { ...state, tasks: state.tasks.map(task => task.id === action.payload.id ? { ...task, all_day: action.payload.allDay, start: action.payload.start, end: action.payload.end } : task) };
         case actions.SCHEDULE_TASKS_ERROR:
             return { ...state, tasks: [] };
         default:

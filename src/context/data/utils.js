@@ -1,7 +1,22 @@
 import dayjs from 'dayjs';
+
 export const createStringDate = (date) => {
     return dayjs(date).format('YYYY-MM-DDTHH:mm:ssZ')
 }
+
+export const DateToHumanString = (date, allDay, isEndate=false) => {
+    if (!dayjs(date).isValid()) return ""
+    try {
+        let newDate=dayjs(date) 
+        if (allDay, isEndate) newDate=newDate.add(-1, 's')
+        return newDate.format(allDay ? 'DD.MM.YYYY' : 'DD.MM.YYYY HH:mm') || ""        
+    } catch (error) {
+        return ""
+    }
+
+
+}
+
 export const createEndDate = (start, end, allDay) => {
     const dateStart = dayjs(start)
     if (!end) return ""
