@@ -14,76 +14,120 @@ import ArticleIcon from '@mui/icons-material/Article';
 import CommentIcon from '@mui/icons-material/Comment';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+
 import InputLabel from '@mui/material/InputLabel';
 //**********
+
+import { useForm, useWatch } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from 'yup';
+
 import 'dayjs/locale/ru';
 import dayjs from 'dayjs';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 //* internal
 import { useData } from '../../context/data'
-import { StyledSelectItem, StyledSelect, StyledButton, ButtonBox, StyledTextField, StyledTextFieldMultiline, StyledTextFieldCalendar } from './StyledElements';
-//****************************************************************************
+import { StyledButton, ButtonBox } from './controls/StyledElements';
+import CheckBox from './controls/checkbox';
+import Select from './controls/select';
+import FormInput from './controls/input/form-input';
+import FormInputMultiline from './controls/input/form-input-multiline';
+import FormDatePicker from './controls/datetime/date';
+import FormTimePicker from './controls/datetime/time';
+import { createEndDateForm } from '../../context/data/utils'
+
+
+
+//**yup validation Schema*******************************************************
+
+const validationSchema = yup.object().shape({
+  name: yup.string().required("поле 'Наименование' обязательно к заполнению"),
+  start: yup
+    .date()
+    //    .min(new Date(), 'Дата начала не может быть в прошлом')
+    .required('Дата начала обязательно'),
+  end: yup
+    .date()
+    .when('start', (start, schema) => {
+      if (start) {
+        const currentDay = new Date(start.getTime());
+        //        const nextDay = new Date(start.getTime() + 86400000);
+        return schema
+          .min(currentDay, 'Дата окончания должно быть больше даты начала')
+        //          .max(nextDay, 'End time cannot be more than 24 hours after start time');
+      } else {
+        return schema;
+      }
+    })
+    .required('Дата окончания обязательно'),
+});
+
 
 export default function FormDialog({ open, handleClose }) {
-  const { selectedEvent } = useData()
+  const { selectedEvent, updateTask, addTask } = useData()
   const newEvent = useMemo(() => (!selectedEvent || selectedEvent?.id === 0), [selectedEvent])
-  const [name, setName] = useState('')
-  const [tip, setTip] = useState(2)
-  const [comment, setComment] = useState('')
-  const [start, setStart] = useState(dayjs())
-  const [end, setEnd] = useState(dayjs())
-  const [allDay, setAllDay] = useState(true);
+  const { handleSubmit, watch, reset, control, setValue, formState: { errors } } = useForm({
+    resolver: yupResolver(validationSchema),
+  });
+  const isNew = useMemo(() => (!selectedEvent || selectedEvent?.id === 0), [selectedEvent])
+  const id = useMemo(() => (selectedEvent?.id || 0), [selectedEvent])
+  const allDay = useWatch({ control, name: "allDay", defaultValue: selectedEvent?.allDay });
+  const tip = useWatch({ control, name: "tip", defaultValue: 0 });
+  const isGrafik = useMemo(() => (tip.toString()==="1") , [tip])  
+  const nameFieldCaption = useMemo(() => isGrafik ? "ФИО" : "Наименование", [tip])
+  
 
+  const onSubmit = data => isNew
+    ? addTask({...data, status: 1, sendToMattermost: false })
+    : updateTask({ ...data, status: 1, sendToMattermost: false, id: id })
 
 
   useEffect(() => {
-    return () => {
-      setName('')
-    }
-
-  }, [selectedEvent])
-
-
-  useEffect(() => {
-    if (!selectedEvent || selectedEvent?.id === 0) {
-      setTip(2)
-      setName('')
-      setStart(dayjs())
-      setEnd(dayjs())
+    if (!selectedEvent) return
+    if (isNew) {
+      reset({
+        tip: selectedEvent?.tip || 3,
+        name: selectedEvent?.name || "",
+        allDay: selectedEvent.allDay,
+        start: selectedEvent.start || dayjs(),
+        end: selectedEvent.end || dayjs(),
+        comment: ""
+      })
       return
     }
-    setTip(1)
-    setName(selectedEvent.name)
-    setAllDay(selectedEvent.allDay)
-    setStart(selectedEvent.start)
-    setEnd(selectedEvent.end || selectedEvent.start)
-    return () => {
-      setName('')
-    }
+
+    reset({
+      tip: selectedEvent?.event?.tip || 3,
+      name: selectedEvent?.name,
+      allDay: selectedEvent.allDay,
+      start: selectedEvent.start,
+      end: createEndDateForm(selectedEvent.start, selectedEvent.end, selectedEvent?.allDay),
+      comment: selectedEvent?.event?.comment || ""
+    })
 
   }, [selectedEvent])
 
 
+  useEffect(() => {
+    if (allDay) {
+      setValue("start", dayjs(watch('start')).startOf('day'))
+      setValue("end", dayjs(watch('end')).startOf('day'))
+    }
+  }, [allDay])
 
   const handleChangeAllDay = (event) => {
     if (event.target.checked) {
-      setStart(dayjs(start).startOf('day'))
-      setEnd(dayjs(end).startOf('day'))
-
+      reset({
+        start: dayjs(watch('start')).startOf('day'),
+        end: dayjs(watch('end')).startOf('day'),
+      })
     }
-    setAllDay(event.target.checked);
   };
-  // console.log('start', end)
-  // console.log('end', end)
+
+  // console.log('errors', errors)
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogContent
@@ -99,128 +143,41 @@ export default function FormDialog({ open, handleClose }) {
         <Stack sx={{ m: 2 }}>
           <Stack direction="row">
             <InventoryIcon sx={{ width: 20, color: lightBlue[900], margin: '7px 7px 0 0' }} />
-            <FormControl sx={{ width: '100%' }} size="small">
-              <InputLabel id="demo-select-small">тип</InputLabel>
-              <StyledSelect
-                disabled={!newEvent}
-                id="tip-select"
-                value={tip}
-                label="тип"
-                onChange={(event) => {
-                  setTip(event.target.value);
-                }}
-              >
-                <StyledSelectItem disabled={newEvent} value={1}>График дежурств</StyledSelectItem>
-                <StyledSelectItem value={2}>Событие</StyledSelectItem>
-                <StyledSelectItem value={3}>Задача</StyledSelectItem>
-              </StyledSelect>
-            </FormControl>
+            <Select name="tip" label="тип" control={control} disabled={isGrafik} disabledFirstItem={newEvent} />
           </Stack>
           <Stack direction="row">
             <AccountCircleIcon sx={{ width: 20, color: lightBlue[900], margin: '7px 7px 0 0' }} />
-            <StyledTextField
-              disabled={!newEvent}
-              onChange={(e) => { setName(e.target.value) }}
-              autoFocus
-              id="name"
-              label="ФИО"
-              type="text"
-              value={name}
-              fullWidth
-            />
+            <FormInput name="name" label={nameFieldCaption} control={control} disabled={isGrafik} autoFocus />
           </Stack>
-          {/* <Stack direction="row">
-            <ArticleIcon sx={{ width: 20, color: lightBlue[900], margin: '7px 7px 0 0' }} />
-            <StyledTextField
-              onChange={(e) => { }}
-              disabled
-              id="titlt"
-              label="должность"
-              type="text"
-              value={title}
-              fullWidth
-            />
-          </Stack> */}
-          {/* <ListItem disablePadding>
-            <ListItemIcon sx={{ minWidth: 30 }}><AccessTimeIcon sx={{ width: 20 }} /> </ListItemIcon>
-            <ListItemText
-              secondary={"12/12/1222"}
-              secondaryTypographyProps={{ sx: { color: blueGrey[400], fontSize: '0.8rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }} />
-          </ListItem> */}
           <Stack >
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={'ru'}>
-              <Stack direction="row" justifyContent="space-between">
+              <Stack direction="row" justifyContent="space-between" sx={{ marginBottom: '15px', }}>
                 <Box direction="row" sx={{ width: '400px' }}>
                   <AccessTimeIcon sx={{ width: 20, color: lightBlue[900], margin: '7px 7px 0 0' }} />
-                  <DatePicker
-                    label="дата начала"
-                    value={start}
-                    openTo="day"
-                    onChange={(newValue) => setStart(newValue)}
-                    renderInput={(params) => <StyledTextFieldCalendar sx={{ width: '120px', marginRight: '3px' }} {...params} />}
-                  />
-                  {!allDay && <TimePicker
-                    label="время "
-                    value={start}
-                    onChange={(newValue) => setStart(newValue)}
-                    renderInput={(params) => <StyledTextFieldCalendar sx={{ width: '80px' }}  {...params} />}
-                  />}
+                  <FormDatePicker label="дата начала" name="start" control={control} />
+                  {!allDay && <FormTimePicker label="время" name="start" control={control} />}
                 </Box>
-                <Stack direction="row" alignItems="flex-start" justifyContent="flex-end" sx={{ width: '150px' }}>
-                  <FormControlLabel sx={{
-                    '& .MuiTypography-root': { fontSize: '.9rem' },
-                    '& .MuiCheckbox-root': { paddingRight: '5px' },
-                  }} label="Весь день" control={
-                    <Checkbox
-                      size="small"
-                      checked={allDay}
-                      onChange={handleChangeAllDay}
-                      inputProps={{ 'aria-label': 'controlled' }}
-                    />} />
+                <Stack direction="row" alignItems="flex-start" justifyContent="flex-end" sx={{ width: '160px' }}>
+                  <CheckBox name={"allDay"} label={"Весь день"} control={control} handleChange={handleChangeAllDay} />
                 </Stack>
-
               </Stack>
               <Stack direction="row" sx={{ paddingLeft: '26px', }}>
-                <DatePicker
-                  label="дата окончания"
-                  value={end}
-                  minDate={dayjs(start)}
-                  openTo="day"
-                  onChange={(newValue) => setEnd(newValue)}
-                  renderInput={(params) => <StyledTextFieldCalendar sx={{ width: '120px', marginRight: '3px' }} {...params} />}
-                />
-                {!allDay && <TimePicker
-                  label="время "
-                  value={end}
-                  minTime={dayjs(start)}
-                  onChange={(newValue) => {
-                    console.log('newValue', newValue)
-                    setEnd(newValue)
-                  }}
-                  renderInput={(params) => <StyledTextFieldCalendar sx={{ width: '80px' }}  {...params} />}
-                />}
+                <FormDatePicker label="дата окончания" name="end" control={control} />
+                {!allDay && <FormTimePicker label="время" name="end" control={control} />}
               </Stack>
             </LocalizationProvider>
-          </Stack>
-          <Stack direction="row">
+            <Box sx={{ marginLeft: '30px', fontSize: '0.8rem', color: 'red' }}>{(errors?.start?.message || "")}</Box>
+            <Box sx={{ marginLeft: '30px', fontSize: '0.8rem', color: 'red' }}>{(errors?.end?.message || "")}</Box>
+          </Stack >
+          <Stack direction="row" sx={{ marginTop: '15px' }}>
             <CommentIcon sx={{ width: 20, color: lightBlue[900], margin: '7px 7px 0 0' }} />
-            <StyledTextFieldMultiline
-              onChange={(e) => { setComment(e.target.value) }}
-              multiline
-              rows={3}
-              id="fcomment"
-              label="описание"
-              type="text"
-              value={comment}
-              fullWidth
-            />
+            <FormInputMultiline label="описание" name={"comment"} control={control} />
           </Stack>
-
         </Stack>
         <Stack direction="row" sx={{ borderColor: blueGrey[100], borderTopWidth: '1px', borderTopStyle: 'solid', }}>
           <ButtonBox sx={{ borderColor: blueGrey[100], borderRightWidth: '1px', borderRightStyle: 'solid', }}>
-            <StyledButton onClick={() => handleClose()}
-              variant="text">Подтвердить</StyledButton>
+            <StyledButton onClick={handleSubmit(onSubmit)}
+              variant="text">Сохранить</StyledButton>
           </ButtonBox>
           <ButtonBox>
             <StyledButton onClick={() => handleClose()}

@@ -31,7 +31,6 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '2px',
     fontSize: '0.9rem',
-    marginBottom: '15px'
   },
   '& .MuiOutlinedInput-input': {
     height: '1.2rem',
@@ -57,7 +56,7 @@ export const StyledTextFieldCalendar = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '2px',
     fontSize: '0.9rem',
-    marginBottom: '15px',
+
     paddingRight: '2px'
   },
   '& .MuiOutlinedInput-input': {

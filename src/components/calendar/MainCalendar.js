@@ -67,45 +67,38 @@ const Container = styled(Box, {
 
 const MainCalendar = (props) => {
     const { id, open } = props
-    const { deleteTask, updateTask, addTask, selectors, selectTask } = useData()
-    const { tasks } =selectors
+    const { deleteTask, updateTaskFromCalendarEvent, selectors, selectTask } = useData()
+    const { tasks } = selectors
     const calendarContainer = useRef(null);
     const [weekendsVisible] = useState(true)
 
     const handleEventReceive = async (arg) => {
-        const newTask={
-            id: id, 
-            allDay:arg.event.allDay, 
-            title: arg.event.title, 
+        selectTask({
+            id: 0,
+            tip: 1,
+            allDay: arg.event._def.allDay,
             start: arg.event.startStr,
             startDate: arg.event._instance.range.start,
             endDate: arg.event._instance.range.end,
-            extendedProps: { id: arg.event.extendedProps.id },
-        }
-
-       addTask(newTask, true)
-       arg.event.remove()
+            name: arg.event._def.title,
+            event: {
+                id: arg.event._def.extendedProps.id,
+            }
+        })
+        //       addTask(newTask, true)
+        arg.event.remove()
     }
-    const handleEventUpdate = async ({ event, oldEvent }) => updateTask(event)
+    const handleEventUpdate = async ({ event, oldEvent }) => updateTaskFromCalendarEvent(event)
 
     const handleDateSelect = (selectInfo) => {
         let calendarApi = selectInfo.view.calendar
         calendarApi.unselect() // clear date selection
         selectTask({
-            id: 0
+            id: 0,
+            allDay: selectInfo.allDay,
+            start: selectInfo.startStr,
         })
-//        handleFormOpen()
         return
-        // let title = prompt('Please enter a new title for your event')
-        // if (title) {
-        //     calendarApi.addEvent({
-        //         id: createEventId(),
-        //         title,
-        //         start: selectInfo.startStr,
-        //         end: selectInfo.endStr,
-        //         allDay: selectInfo.allDay
-        //     })
-        // }
     }
     const renderCellContent = (eventInfo) => {
         const weekday = eventInfo.date.getDay()
@@ -146,11 +139,11 @@ const MainCalendar = (props) => {
                 weekends={weekendsVisible}
                 events={tasks} // alternatively, use the `events` setting to fetch from a feed
                 select={handleDateSelect}
-                eventContent={(eventInfo)=><CustomEvent event={eventInfo.event} />} // custom render function
+                eventContent={(eventInfo) => <CustomEvent event={eventInfo.event} />} // custom render function
                 dayCellContent={renderCellContent}
-//                eventClick={handleEventClick}
+                //                eventClick={handleEventClick}
                 eventCl
-//                eventsSet={handleEvents} // called after events are initialized/added/changed/removed
+                //                eventsSet={handleEvents} // called after events are initialized/added/changed/removed
                 eventColor='rgba(0,0,0,0.05)'
                 eventTextColor='#444'
                 droppable={true}
@@ -160,8 +153,8 @@ const MainCalendar = (props) => {
                 eventChange={handleEventUpdate}
                 eventReceive={handleEventReceive}
                 eventDragStop={handleEventDragStop}
-                // eventMouseEnter={handleEventMouseEnter}
-                // eventMouseLeave={handleEventMouseLeave}
+            // eventMouseEnter={handleEventMouseEnter}
+            // eventMouseLeave={handleEventMouseLeave}
 
             /* you can update a remote database when these fire:
             eventAdd={function(){}}

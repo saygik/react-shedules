@@ -1,6 +1,6 @@
 import React from 'react'
 import Popover from '@mui/material/Popover'
-import dayjs from 'dayjs';
+
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { lightBlue, blueGrey } from '@mui/material/colors';
@@ -28,12 +28,12 @@ const ButtonBox = styled(Box)(({ theme }) => ({
 
 
 const CustomTooltip = (props) => {
-   const { deleteTask, selectTask } = useData()
+    const { deleteTask, selectTask } = useData()
     const { open, event, parentId, handleClose, anchorEl } = props
-//    const {  selectors: {sortedUsers, scheduleName, loading, loaded, editTaskOpen}, getSchedule, deselectTask } = useData()
+    //    const {  selectors: {sortedUsers, scheduleName, loading, loaded, editTaskOpen}, getSchedule, deselectTask } = useData()
 
     const eventTime = useMemo(() => {
-    if (!event) return ""
+        if (!event) return ""
         const dateStart = DateToHumanString(event.startStr, event.allDay)
         const dateEnd = DateToHumanString(event.endStr, event.allDay, true)
 
@@ -85,12 +85,12 @@ const CustomTooltip = (props) => {
                 </List>
                 <Box sx={{ borderColor: blueGrey[100], borderTopWidth: '1px', borderTopStyle: 'solid', display: 'flex', }}>
                     <ButtonBox sx={{ borderColor: blueGrey[100], borderRightWidth: '1px', borderRightStyle: 'solid', }}>
-                        <StyledButton onClick={() => deleteTask(event.id)}                          
-                         variant="text">Удалить</StyledButton>
+                        <StyledButton onClick={() => deleteTask(event.id)}
+                            variant="text">Удалить</StyledButton>
                     </ButtonBox>
                     <ButtonBox>
-                        <StyledButton onClick={() => selectTask({id:event.id})} 
-                         variant="text">Редактировать</StyledButton>
+                        <StyledButton onClick={() => selectTask({ id: event.id })}
+                            variant="text">Редактировать</StyledButton>
                     </ButtonBox>
                 </Box>
             </Box>

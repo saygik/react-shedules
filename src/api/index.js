@@ -13,7 +13,7 @@ const index = {};
 const apiData = async (url, token = '', method = 'get', data = {}) => {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers.Authorization = `Bearer ${token}`;
-//    console.log('11111111', token)
+    //    console.log('11111111', token)
     return axios({
         method,
         url: _apiBase + url,
@@ -35,14 +35,41 @@ index.getAdUser = async (domain) => await apiData(`/v1/users/ad/${domain}`, '', 
 index.getAdUserInGroup = async (domain, group) => await apiData(`/v1/users/ad/${domain}/${group}`, '', 'get');
 // eslint-disable-next-line no-return-await
 index.getOneUser = async (userPN) => await apiData(`/v1/user/ad/${userPN}`, '', 'get');
+
 // eslint-disable-next-line no-return-await
-index.addTask = async (idc,title,upn,start, end, all_day, comment) => apiData(`/v1/schedule/task`, '', 'post', JSON.stringify({ idc,title,upn,start, end, all_day, comment }))
+
+    index.addTask = async (idc, tip, status, title, upn, start, end, all_day, sendMattermost, comment) =>
+        await apiData(`/v1/schedule/task`, '', 'post', JSON.stringify(
+            {
+                idc,
+                tip,
+                status,
+                title,
+                upn,
+                start,
+                end,
+                all_day,
+                sendMattermost,
+                comment
+            }))
+
+// eslint-disable-next-line no-return-await
+index.updateTask = async (id, tip, status, title, start, end, all_day, sendMattermost, comment) =>
+    await apiData(`/v1/schedule/task/${id}`, '', 'put', JSON.stringify(
+        {
+            tip,
+            status,
+            title,
+            start,
+            end,
+            all_day,
+            sendMattermost,
+            comment
+        }));
 // eslint-disable-next-line no-return-await
 index.getSchedule = async (id) => await apiData(`/v1/schedules/${id}`, '', 'get');
 // eslint-disable-next-line no-return-await
 index.getScheduleTasks = async (id) => await apiData(`/v1/schedule/tasks/${id}`, '', 'get');
-// eslint-disable-next-line no-return-await
-index.updateTask = async (id,start,end, all_day, comment) => await apiData(`/v1/schedule/task/${id}`, '', 'put', JSON.stringify({ start, end, all_day, comment }));
 // eslint-disable-next-line no-return-await
 index.deleteTask = async (id) => await apiData(`/v1/schedule/task/${id}`, '', 'delete');
 // eslint-disable-next-line no-return-await

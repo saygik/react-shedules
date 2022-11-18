@@ -1391,6 +1391,11 @@
     "@fullcalendar/daygrid" "~5.11.2"
     "tslib" "^2.1.0"
 
+"@hookform/resolvers@^2.9.10":
+  "integrity" "sha512-JIL1DgJIlH9yuxcNGtyhsWX/PgNltz+5Gr6+8SX9fhXc/hPbEIk6wPI82nhgvp3uUb6ZfAM5mqg/x7KR7NAb+A=="
+  "resolved" "https://registry.npmjs.org/@hookform/resolvers/-/resolvers-2.9.10.tgz"
+  "version" "2.9.10"
+
 "@humanwhocodes/config-array@^0.10.4":
   "integrity" "sha512-mXAIHxZT3Vcpg83opl1wGlVZ9xydbfZO3r5YfRSH6Gpp2J/PfdBP0wbDa2sO6/qRbcalpoevVyW6A/fI6LfeMw=="
   "resolved" "https://registry.npmjs.org/@humanwhocodes/config-array/-/config-array-0.10.4.tgz"

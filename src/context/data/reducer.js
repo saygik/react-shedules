@@ -36,7 +36,7 @@ export const reducer = (state, action) => {
         case actions.SCHEDULE_TASK_DELETE:
             return { ...state, tasks: state.tasks.filter(task => task.id !== action.payload) };
         case actions.SCHEDULE_TASK_UPDATE:
-            return { ...state, tasks: state.tasks.map(task => task.id === action.payload.id ? { ...task, all_day: action.payload.allDay, start: action.payload.start, end: action.payload.end } : task) };
+            return { ...state, tasks: state.tasks.map(task => task.id === action.payload.id ? { ...task, ...action.payload } : task) };
         case actions.SCHEDULE_TASKS_ERROR:
             return { ...state, tasks: [] };
         default:
