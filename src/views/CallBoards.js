@@ -35,11 +35,7 @@ function CallBoards() {
             <Bar open={open} setOpen={setOpen} />
             <Sidebar open={open} setOpen={setOpen} users={sortedUsers} name={scheduleName} />
             <main>
-                    <MainCalendar
-                        open={open}
-                        id={id}
-                        type="trigger"
-                        />
+                    <MainCalendar open={open} />
             </main>
             <EventForm open={editTaskOpen} handleClose={deselectTask} />
         </Box>

@@ -19,8 +19,9 @@ const MuiSelect = (props) => {
     return (
 
         <FormControl fullWidth={true} error={isError} size="small" >
-            <InputLabel id="demo-select-small">тип</InputLabel>
+            <InputLabel id="demo-select-small" disabled={disabled}>{label}</InputLabel>
             <StyledSelect
+                sx={{  marginBottom: '15px',}}
                 disabled={disabled}
                 id={`${name}-select`}
                 label={label}

@@ -1,11 +1,28 @@
 import dayjs from 'dayjs';
+import { blue,deepOrange, green,blueGrey } from '@mui/material/colors';
+
+export const eventColor= (tip, status=1)=> {
+    if (!tip || !status) return blueGrey[700]
+    switch(tip.toString()) {
+        case '1': 
+        return blue[800]
+        case '2': 
+        return green[800]
+        case '3': 
+        if (status.toString()==='3') return blueGrey[300]
+        else return blueGrey[800]
+        default:
+            return blueGrey[700]
+        }
+    }
+
 
 export const createStringDate = (date) => {
     return dayjs(date).format('YYYY-MM-DDTHH:mm:ssZ')
 }
 export const createStringDates = (start, end, allDay, dayToAdd = 1) => {
     const dateStartString = createStringDate(start)
-    if (start === end) return { start: dateStartString, end: "" }
+    if (dayjs(start).isSame(end,'minute')) return { start: dateStartString, end: "" }
     const dateEndString = allDay
         ? createStringDate(addDay(end, dayToAdd))
         : createStringDate(end)
@@ -28,8 +45,6 @@ export const DateToHumanString = (date, allDay, isEndate = false) => {
     } catch (error) {
         return ""
     }
-
-
 }
 
 export const createEndDate = (start, end, allDay) => {
@@ -102,6 +117,7 @@ export const getExtendedPropertys = (ev, users) => {
     newEvent.extendedProps.telephoneNumber = ADUserFinded.telephoneNumber
     newEvent.extendedProps.title = ADUserFinded.title
     newEvent.extendedProps.mobile = ADUserFinded.mobile
+    newEvent.extendedProps.mail = ADUserFinded.mail
     newEvent.extendedProps.notfound = false
     return newEvent
 };

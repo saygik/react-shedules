@@ -77,7 +77,6 @@ export const StyledTextFieldMultiline = styled(TextField)(({ theme }) => ({
   },
 }));
 export const StyledSelect = styled(Select)(({ theme }) => ({
-  marginBottom: '15px',
   width: '100%',
   '& .MuiInputLabel-root': {
     fontSize: '0.9rem',

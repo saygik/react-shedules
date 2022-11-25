@@ -18,11 +18,12 @@ export const DataProvider = ({ children }) => {
 
     const selectors = {};
     selectors.loading = useMemo(() => state.loading, [state.loading]);
+    selectors.popapedEvent = useMemo(() => state.popapedEvent, [state.popapedEvent]);
     selectors.loaded = useMemo(() => state.loaded, [state.loaded]);
     selectors.editTaskOpen = useMemo(() => !!state.selectedEvent, [state.selectedEvent]);
     selectors.scheduleName = useMemo(() => schedule && (schedule.name || ""), [schedule]);
     selectors.searchValue = useMemo(() => state.searchValue, [state.searchValue]);
-    selectors.tasks = useMemo(() => state.tasks.map(ev => getExtendedPropertys(ev,users)), [state.tasks, users]);// eslint-disable-line react-hooks/exhaustive-deps
+    selectors.tasks = useMemo(() => state.tasks.map(ev => getExtendedPropertys(ev, users)), [state.tasks, users]);// eslint-disable-line react-hooks/exhaustive-deps
     selectors.sortedUsers = useMemo(() => {
         return users.sort((a, b) => {
             const fa = a.displayName.toLowerCase();
@@ -116,13 +117,11 @@ export const DataProvider = ({ children }) => {
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
-
-
-
     const getScheduleUsers = useCallback(async (schedule) => {
         try {
             const result = await api.getAdUserInGroup(schedule.domain || "", schedule.usergroup || "")
             if (result && result.status === 200) {
+                //console.log('result.data.data', result.data.data)
                 dispatch({ type: actions.SCHEDULE_USERS_SUCCESS, payload: result.data.data })
             } else {
                 dispatch({ type: actions.SCHEDULE_USERS_ERROR })
@@ -135,7 +134,6 @@ export const DataProvider = ({ children }) => {
         }
     }, []);// eslint-disable-line react-hooks/exhaustive-deps    
 
-    
     const deleteTask = useCallback(async (id) => {
         try {
             const result = await api.deleteTask(id)
@@ -171,6 +169,7 @@ export const DataProvider = ({ children }) => {
                     payload: {
                         id: task.id,
                         tip: task.tip.toString(),
+                        title: task.name,
                         status: task.status.toString(),
                         start: newDates.start,
                         end: newDates.end,
@@ -189,21 +188,20 @@ export const DataProvider = ({ children }) => {
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
     const updateTaskFromCalendarEvent = useCallback(async (event) => {
-        const newEndDate = createEndDateNew(event.start, event._instance.range.start, event._instance.range.end)
+        const newEndDate = createEndDateNew(event.start, event.range.start, event.range.end)
         const newDates = createStringDates(event.start, newEndDate, event.allDay, 0)
-
         try {
             //            const result = await api.updateTask(event.id, dateStartString, dateEndString, event.allDay.toString(), event.extendedProps.comment)
             const result = await api.updateTask(
                 event.id,
-                event.extendedProps.tip.toString(),
-                event.extendedProps.status.toString(),
+                event.tip.toString(),
+                event.status.toString(),
                 event.title,
                 newDates.start,
                 newDates.end,
                 event.allDay.toString(),
-                event.extendedProps.sendMattermost,
-                event.extendedProps.comment
+                event.sendMattermost.toString(),
+                event.comment
             )
             if (result.status === 200) {
                 dispatch({
@@ -212,7 +210,9 @@ export const DataProvider = ({ children }) => {
                         id: event.id,
                         start: newDates.start,
                         end: newDates.end,
-                        all_day: event.allDay.toString()
+                        all_day: event.allDay.toString(),
+                        send_mattermost: event.sendMattermost.toString(),
+                        status:event.status.toString()
                     }
                 })
                 toast.info('Событие изменено!');
@@ -254,6 +254,8 @@ export const DataProvider = ({ children }) => {
 
     const selectTask = useCallback(task => dispatch({ type: actions.SCHEDULE_TASK_SELECT, payload: task }), [])
     const deselectTask = useCallback(() => dispatch({ type: actions.SCHEDULE_TASK_DESELECT }), [])
+    const popupTask = useCallback(task => dispatch({ type: actions.SCHEDULE_TASK_POPUP, payload: task }), [])
+    const depopupTask = useCallback(() => dispatch({ type: actions.SCHEDULE_TASK_DEPOPUP }), [])
 
 
     //* *******************************************************************************************************//
@@ -267,7 +269,9 @@ export const DataProvider = ({ children }) => {
         getSchedule,
         addTask,
         selectTask,
-        deselectTask
+        deselectTask,
+        popupTask,
+        depopupTask
         //        dispatch
     };
 

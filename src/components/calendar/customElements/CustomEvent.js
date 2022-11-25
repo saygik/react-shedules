@@ -1,10 +1,16 @@
 import React from "react"
+import { useEffect } from "react";
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Person from '@mui/icons-material/Person'
-import { lightBlue } from '@mui/material/colors';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import SyncIcon from '@mui/icons-material/Sync';
 import CustomTooltip from './CustomTooltip'
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { eventColor } from '../../../context/data/utils'
+
+import { useData } from '../../../context/data'
 
 
 const CalendarEvent = styled('div')(({ theme }) => ({
@@ -13,46 +19,62 @@ const CalendarEvent = styled('div')(({ theme }) => ({
     cursor: 'pointer',
     position: 'relative',
     background: 'theme.palette.background.paper',
-    //    opacity: '0.85',
     boxShadow: '2px 2px 2px rgba(0,0,0,0.4)',
-    //borderRadius: '2px',
     border: '1px',
     borderRadius: '0px',
     borderStyle: 'solid',
     borderLeftWidth: '5px',
-    //    transition: 'background-color 0.2s, opacity 0.2s, font-weight 0.2s, font-size 0.2s, border 0.2s',
-    //     '&:hover': {
-    //         opacity: '1',
-    //         transition: '0.3s ease-in',
-    //     }
 }));
 
 
-const CustomEvent = ({ event }) => {
+const EventIcon = ({ tip, color, status }) => {
+    if (!tip) return <></>
+    const iconProps = { width: '16px', color: color, fontSize: '0.9rem', paddingTop: '1px', margin: '2px 3px 0px 3px' }
+    if (tip.toString() === "1") return <Person sx={iconProps} />
+    if (tip.toString() === "2") return <InventoryIcon sx={iconProps} />
+    if (tip.toString() === "3" && status.toString()==="3") return <TaskAltIcon sx={iconProps} />
+    if (tip.toString() === "3" && status.toString()!=="3") return <SyncIcon sx={iconProps} />
+    return <></>
+}
+
+const CustomEvent = ({ task }) => {
     //eventInfo.event.extendedProps.notfound
-    const [anchorEl, setAnchorEl] = React.useState(null);
-
-    const handlePopoverOpen  = (event) => {
-        setAnchorEl(event.currentTarget);
-    }
-    const handlePopoverClose  = () => {
-        setAnchorEl(null);
-    }
-
-    const open= useMemo(()=>{
-        return Boolean(anchorEl)
-    },[anchorEl])
-
-    const eventId= useMemo(()=>{
-        return 'eventDiv' + event.id
-    },[event.id])
+    const { selectors:{ popapedEvent}, popupTask,depopupTask } = useData()
     
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const divRef = useRef(null);
+
+    useEffect(()=>{
+        setAnchorEl(divRef.current);
+        return ()=>setAnchorEl(null)
+    },[])
+
+    const handlePopoverOpen = (event) => {
+        setAnchorEl(divRef.current);
+        popupTask(task.id)
+    }
+    const handlePopoverClose = () => {
+        setAnchorEl(null);
+        depopupTask()
+    }
+    const open = useMemo(() => {
+        //return Boolean(anchorEl)
+        return popapedEvent===task.id
+    }, [task, popapedEvent])
+
+    const eventId = useMemo(() => {
+        return 'eventDiv' + task.id
+    }, [task.id])
+
+    const evColor = useMemo(() => {
+        return eventColor(task.extendedProps.tip, task.extendedProps.status)
+    }, [task.extendedProps.tip])
+
     return (
-        <CalendarEvent sx={{ color: lightBlue[700] }}>
+        <CalendarEvent sx={{ color: evColor }}>
+                <Box ref={divRef} ></Box>
             <Box component="div"
                 onClick={handlePopoverOpen}
-                aria-owns={open ? eventId : undefined}
-                aria-haspopup="true"                
                 style={{
                     display: "flex",
                     flexDirection: "row",
@@ -60,9 +82,7 @@ const CustomEvent = ({ event }) => {
                     marginRight: '20px',
 
                 }}>
-                <Box style={{ margin: '3px' }}>
-                    <Person sx={{ width: '18px' }} />
-                </Box>
+                <EventIcon tip={task.extendedProps.tip} status={task.extendedProps.status} color={evColor} />
                 <Box
                     component="div"
                     style={{
@@ -74,32 +94,25 @@ const CustomEvent = ({ event }) => {
                     }}>
 
                     <Box sx={{
-                        color: lightBlue[900],
+                        color: evColor,
+                        paddingTop: '1px',
                         paddingRight: '1px',
                         fontSize: '92%',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis'
                     }} >
-                        {event.title}
-                    </Box>
-                    <Box sx={{
-                        color: event.extendedProps.notfound ? 'error.main' : 'text.secondary',
-                        fontSize: '85%',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                    }} >
-                        {event.extendedProps.title}
+                        {task.title}
                     </Box>
                 </Box>
             </Box>
-            <CustomTooltip open={open}
-                          anchorEl={anchorEl}
-                          parentId={`#${eventId}`}
-                          handleClose={handlePopoverClose}
-                          event={event}
-           />
+            {open && <CustomTooltip open={open}
+                anchorEl={anchorEl}
+                parentId={`#${eventId}`}
+                handleClose={handlePopoverClose}
+                tooltipTask={task}
+                color={evColor}
+            />}
         </CalendarEvent>
     )
 }

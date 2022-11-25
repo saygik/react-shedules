@@ -8,7 +8,8 @@ export const initialState = {
     loading: false,
     loaded: false,
     domains: [],
-    selectedEvent: null
+    selectedEvent: null,
+    popapedEvent: null,
 };
 
 export const reducer = (state, action) => {
@@ -27,6 +28,10 @@ export const reducer = (state, action) => {
             return { ...state, selectedEvent: action.payload };
         case actions.SCHEDULE_TASK_DESELECT:
             return { ...state, selectedEvent: null };
+        case actions.SCHEDULE_TASK_POPUP:
+            return { ...state, popapedEvent: action.payload };
+        case actions.SCHEDULE_TASK_DEPOPUP:
+            return { ...state, popapedEvent: null };
         case actions.SCHEDULE_TASKS_REQUEST:
             return { ...state, tasks: [] };
         case actions.SCHEDULE_TASKS_SUCCESS:

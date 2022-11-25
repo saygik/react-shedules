@@ -66,13 +66,14 @@ const Container = styled(Box, {
 
 
 const MainCalendar = (props) => {
-    const { id, open } = props
+    const { open } = props
     const { deleteTask, updateTaskFromCalendarEvent, selectors, selectTask } = useData()
     const { tasks } = selectors
     const calendarContainer = useRef(null);
     const [weekendsVisible] = useState(true)
 
     const handleEventReceive = async (arg) => {
+
         selectTask({
             id: 0,
             tip: 1,
@@ -88,7 +89,23 @@ const MainCalendar = (props) => {
         //       addTask(newTask, true)
         arg.event.remove()
     }
-    const handleEventUpdate = async ({ event, oldEvent }) => updateTaskFromCalendarEvent(event)
+    const handleEventUpdate = async ({ event, oldEvent }) => updateTaskFromCalendarEvent(
+        {
+            id: event.id,
+            tip: event.extendedProps.tip,
+            status: event.extendedProps.status,
+            title: event.title,
+            start:event.start,
+            end: event.start,
+            range: {
+                start: event._instance.range.start,
+                end: event._instance.range.end,
+            },
+            allDay: event.allDay,
+            sendMattermost: event.extendedProps.sendMattermost,
+            comment: event.extendedProps.comment
+        }
+    )
 
     const handleDateSelect = (selectInfo) => {
         let calendarApi = selectInfo.view.calendar
@@ -139,7 +156,7 @@ const MainCalendar = (props) => {
                 weekends={weekendsVisible}
                 events={tasks} // alternatively, use the `events` setting to fetch from a feed
                 select={handleDateSelect}
-                eventContent={(eventInfo) => <CustomEvent event={eventInfo.event} />} // custom render function
+                eventContent={(eventInfo) => <CustomEvent task={eventInfo.event} />} // custom render function
                 dayCellContent={renderCellContent}
                 //                eventClick={handleEventClick}
                 eventCl

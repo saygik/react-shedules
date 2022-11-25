@@ -38,7 +38,7 @@ index.getOneUser = async (userPN) => await apiData(`/v1/user/ad/${userPN}`, '', 
 
 // eslint-disable-next-line no-return-await
 
-    index.addTask = async (idc, tip, status, title, upn, start, end, all_day, sendMattermost, comment) =>
+    index.addTask = async (idc, tip, status, title, upn, start, end, all_day, send_mattermost, comment) =>
         await apiData(`/v1/schedule/task`, '', 'post', JSON.stringify(
             {
                 idc,
@@ -49,12 +49,12 @@ index.getOneUser = async (userPN) => await apiData(`/v1/user/ad/${userPN}`, '', 
                 start,
                 end,
                 all_day,
-                sendMattermost,
+                send_mattermost,
                 comment
             }))
 
 // eslint-disable-next-line no-return-await
-index.updateTask = async (id, tip, status, title, start, end, all_day, sendMattermost, comment) =>
+index.updateTask = async (id, tip, status, title, start, end, all_day, send_mattermost, comment) =>
     await apiData(`/v1/schedule/task/${id}`, '', 'put', JSON.stringify(
         {
             tip,
@@ -63,7 +63,7 @@ index.updateTask = async (id, tip, status, title, start, end, all_day, sendMatte
             start,
             end,
             all_day,
-            sendMattermost,
+            send_mattermost,
             comment
         }));
 // eslint-disable-next-line no-return-await

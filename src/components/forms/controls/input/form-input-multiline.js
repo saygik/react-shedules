@@ -24,7 +24,6 @@ function FormInputMultiline({ name, label, control, disabled }) {
     }
       return (
         <StyledTextFieldMultiline
-        sx={{ marginBottom: '15px' }}
         disabled={disabled}
         label={label}
         type="text"
